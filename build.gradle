@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.springsource.org/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.1.5'
+    }
+}
+description = 'Sample Applications for Spring for Apache Hadoop'
+
+apply plugin: 'docbook-reference'
+
+reference {
+    sourceDir = file('docs/src/reference/docbook')
+}
+
+
+task docsZip(type: Zip) {
+    group = 'Distribution'
+    classifier = 'docs'
+    description = "Builds -${classifier} archive containing api and reference for deployment"
+
+    from (reference) {
+        into 'reference'
+    }
+}
+
+task distZip(type: Zip, dependsOn: [docsZip]) {
+    group = 'Distribution'
+    classifier = 'dist'
+    description = "Builds -${classifier} archive, containing all jars and docs, " +
+                  "suitable for community download page."
+
+    ext.zipRootDir = "${project.name}-${project.version}"
+
+    into (zipRootDir) {
+        from('docs/src/info') {
+            include 'readme.txt'
+            include 'license.txt'
+            include 'notice.txt'
+            expand(copyright: new Date().format('yyyy'), version: project.version)
+        }
+
+        from(zipTree(docsZip.archivePath)) {
+            into "docs"
+        }
+
+
+    }
+}
+
+artifacts {
+    archives docsZip
+}
+
+defaultTasks 'reference'
