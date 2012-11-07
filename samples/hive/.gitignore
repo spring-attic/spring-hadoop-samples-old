@@ -1,0 +1,4 @@
+/metastore_db/
+/TempStatsStore/
+/*.log
+/.settings/
