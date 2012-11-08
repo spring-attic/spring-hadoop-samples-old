@@ -219,7 +219,7 @@
 		  </program>
 		  <program>
 		    <mainClass>org.springframework.samples.hadoop.hive.HiveJdbcApp</mainClass>
-		    <name>hiveJdbcApp</name>
+		    <name>hiveAppJdbc</name>
 		  </program>		  
 		  <program>
 		    <mainClass>org.springframework.samples.hadoop.hive.HiveAppWithApacheLogs</mainClass>
