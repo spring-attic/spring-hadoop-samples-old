@@ -15,7 +15,7 @@ The file +src/main/resources/META-INF/spring/application-context.xml is the main
 
 To configure the application to connect to the namenode, use the +<configuration/> namespace element.  Values in the XML configuration can be replaced using standard Spring container functionality such as the property placeholder
 
-.Configuring Hadoop connectivity
+==== Configuring Hadoop connectivity
 ----
 <context:property-placeholder location="hadoop.properties"/>
 
@@ -26,7 +26,7 @@ To configure the application to connect to the namenode, use the +<configuration
 
 To declaratively configure a Java based MapReduce jobs, use the XML namespace +<job/> element.
 
-.Declaring a Job
+==== Declaring a Job
 ----
 <job id="wordcountJob"
      input-path="${wordcount.input.path}" 
@@ -37,7 +37,7 @@ To declaratively configure a Java based MapReduce jobs, use the XML namespace +<
 
 HDFS scripting is performed using the XML namespace +<script/>+ element.
 
-.Declaring a parameterized HDFS script
+==== Declaring a parameterized HDFS script
 ----
 <script id="setupScript" location="copy-files.groovy">
   <property name="localSourceFile" value="${localSourceFile}"/>
@@ -46,8 +46,7 @@ HDFS scripting is performed using the XML namespace +<script/>+ element.
 </script>	 
 ----
 
-The groovy script is shown below
-.Groovy script that creates output directory, copies local file to HDFS and removes output HDFS directory
+The Groovy script that creates output directory, copies local file to HDFS and removes output HDFS directory is shown below
 ----
 // use the shell (made available under variable fsh)
 
@@ -63,7 +62,7 @@ if (fsh.test(outputDir)) {
 
 Now that the script and job are managed by the container, they can be dependency injected into other Spring managed beans.  Use the XML namespace +<job-runner/>+ element to configure the list of jobs and HDFS operations actions to execute.  The job-runner element has +pre-action+, +job-ref+, and +post-action+ tags that take a comma delimited list of references to scripts and jobs.
 
-.Declaring a JobRunner
+==== Declaring a JobRunner
 ----
 <job-runner id="runner" run-at-startup="true"
     	    pre-action="setupScript"
