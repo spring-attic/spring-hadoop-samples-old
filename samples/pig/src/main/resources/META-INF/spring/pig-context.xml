@@ -16,17 +16,6 @@
 	</configuration>
 
 	<pig-factory properties-location="pig-server.properties"/>
-	    <!-- 	                    
-		<script location="password-analysis.pig">
-			<arguments>
-				inputDir=${inputDir}
-				outputDir=${outputDir}		
-			</arguments>
-		</script>
-		-->	
-
-
-
 	
 	<script id="hdfsScript" language="groovy" location="copy-files.groovy">
 		<property name="localSourceFile" value="${localSourceFile}"/>
