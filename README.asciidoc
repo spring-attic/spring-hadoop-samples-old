@@ -1,7 +1,9 @@
 == Sample Applications for Spring for Apache Hadoop
 
 This repository contains several sample applications that show how you can use
-Spring for Apache Hadoop.  The applications are located in the directory +samples+.
+Spring for Apache Hadoop.  The applications are located in the directory +samples+.  
+
+The directory +original-samples+ and +docs+ are copies of the example application code and documentation that were shipped in Spring Hadoop 1.0.0.M2.  They will be migrated into the +samples+ directory and removed soon.
 
 === Overview of Spring for Apache Hadoop
 
