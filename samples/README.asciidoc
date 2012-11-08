@@ -1,6 +1,7 @@
 == Sample Applications for Spring for Apache Hadoop
 
-The sample applications are 
+The sample applications are:
+
 * MapReduce - HDFS scripting and running MapReduce jobs
 * Hive - Running Hive scripts
 * Pig - Running Pig scripts
