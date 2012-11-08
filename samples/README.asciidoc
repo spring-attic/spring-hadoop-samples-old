@@ -1,0 +1,12 @@
+== Sample Applications for Spring for Apache Hadoop
+
+The sample applications are 
+* MapReduce - HDFS scripting and running MapReduce jobs
+* Hive - Running Hive scripts
+* Pig - Running Pig scripts
+
+All applications are build using maven.  Please install the latest version of maven before building and running the sample applications.
+
+Additional samples are in the process of being added to this repository.  You can find additional samples that are part of the O'Reilly book link:http://shop.oreilly.com/product/0636920024767.do[Spring Data].  The github repository for the book is link:https://github.com/SpringSource/spring-data-book[SpringSource/spring-data-book]
+
+

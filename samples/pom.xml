@@ -19,6 +19,8 @@
 
 	<modules>
 		<module>mapreduce</module>
+		<module>hive</module>
+		<module>pig</module>
 	</modules>
 
 	<dependencies>
