@@ -11,11 +11,9 @@
 
 	<context:property-placeholder location="hadoop.properties"/>
 
-	<hdp:configuration>
-		fs.default.name=${hd.fs}
-	</hdp:configuration>
+	<hdp:configuration file-system-uri="${hd.fs}" />
 
-	<hdp:hbase-configuration configuration-ref="hadoopConfiguration"/>
+	<hdp:hbase-configuration />
 
 	<bean id="hTemplate" class="org.springframework.data.hadoop.hbase.HbaseTemplate" p:configuration-ref="hbaseConfiguration"/>
 	
