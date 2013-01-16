@@ -1,0 +1,36 @@
+description = 'Spring Hadoop Samples - Cascading for the Impatient - Part 3'
+
+apply plugin: 'base'
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+repositories {
+    // Public Spring artefacts
+    maven { url "http://repo.springsource.org/libs-snapshot" }
+    mavenLocal()
+}
+
+//load version from the root folder
+def props = new Properties();
+new File("../gradle.properties").withInputStream { props.load(it) }
+props.each({ project.ext[it.key] = it.value } )
+version = project.ext.version
+
+dependencies {
+    compile "org.springframework.data:spring-data-hadoop:$version"
+    compile "cascading:cascading-hadoop:$cascadingVersion"
+    // use the latest Spring version to showcase Spring backward compatibility
+    compile "org.springframework:spring-context-support:3.2.0.RELEASE"
+    
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.springframework:spring-test:$springVersion"
+    
+    runtime "log4j:log4j:$log4jVersion"
+    runtime "org.slf4j:slf4j-log4j12:$slf4jVersion"
+}
+
+sourceSets { main { resources { srcDir file('../resources') } } }
+mainClassName = "org.springframework.data.hadoop.samples.cascading.Main"
+defaultTasks 'run'
