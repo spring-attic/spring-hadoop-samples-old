@@ -25,8 +25,6 @@ public class Main {
 	public static String[] ARGS;
 
 	public static void main(String[] args) {
-		System.setProperty("path.separator", ":");
-
 		ARGS = args;
 
 		String[] res = CONFIGS;

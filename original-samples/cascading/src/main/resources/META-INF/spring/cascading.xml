@@ -13,6 +13,9 @@
 	<context:annotation-config />
 
   	<hdp:script id="copyDataToHdfs" language="javascript" run-at-startup="true">
+        // set the proper path separator on Win systems - see HADOOP-9123
+		System.setProperty("path.separator", ":");
+
   		if (fsh.test("${in}")) fsh.rmr("${in}")
   		fsh.put("${in}", "${in}")
   	</hdp:script>
