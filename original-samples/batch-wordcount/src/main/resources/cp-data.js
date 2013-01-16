@@ -11,12 +11,7 @@
 
 
 // 'hack' default permissions to make Hadoop work on Windows
-if (java.lang.System.getProperty("os.name").startsWith("Windows")) {
-    // 0655 = -rwxr-xr-x
-     org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_DIR_PERMISSION.fromShort(0655)
-     org.apache.hadoop.mapreduce.JobSubmissionFiles.JOB_FILE_PERMISSION.fromShort(0655)
-}
-
+org.springframework.data.hadoop.util.PermissionUtils.hackHadoopStagingOnWin()
 
 // delete job paths
 if (fsh.test(inputPath)) { fsh.rmr(inputPath) }

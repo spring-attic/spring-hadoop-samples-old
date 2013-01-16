@@ -31,7 +31,7 @@ dependencies {
 sourceSets { main { resources { srcDir file('../resources') } } }
 
 run {
-  args 'classpath:/launch-context.xml', 'job1'
+  args 'classpath:/launch-context.xml', 'basicJob'
 }
 mainClassName = "org.springframework.batch.core.launch.support.CommandLineJobRunner"
 defaultTasks 'run'
