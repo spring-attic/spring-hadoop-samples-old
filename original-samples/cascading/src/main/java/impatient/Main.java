@@ -38,7 +38,7 @@ import cascading.tap.hadoop.Hfs;
 import cascading.tuple.Fields;
 
 //
-// Modified Impatient Part 3 Main class
+// Modified Impatient Part 2 Main class
 //
 // Extracted the Flow setup into a separate method for reusability
 

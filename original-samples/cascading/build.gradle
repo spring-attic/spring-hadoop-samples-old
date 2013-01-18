@@ -1,4 +1,4 @@
-description = 'Spring Hadoop Samples - Cascading for the Impatient - Part 3'
+description = 'Spring Hadoop Samples - Cascading for the Impatient - Part 2'
 
 apply plugin: 'base'
 apply plugin: 'java'
