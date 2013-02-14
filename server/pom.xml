@@ -207,6 +207,12 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-jvm</artifactId>
+            <version>${jolokia.version}</version>
+            <classifier>agent</classifier>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
@@ -231,7 +237,7 @@
                     <configurationDirectory>config</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-                    <extraJvmArguments>-javaagent:$BASEDIR/config/jolokia-jvm-${jolokia.version}-agent.jar</extraJvmArguments>
+                    <extraJvmArguments>-javaagent:$REPO/jolokia-jvm-${jolokia.version}-agent.jar</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>com.oreilly.springdata.hadoop.streaming.Streaming</mainClass>
