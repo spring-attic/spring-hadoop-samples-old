@@ -15,6 +15,7 @@
         <h2.version>1.3.156</h2.version>
         <hadoop.version>1.0.1</hadoop.version>
         <log4j.version>1.2.17</log4j.version>
+        <jolokia.version>1.0.6</jolokia.version>
     </properties>
     <dependencies>
         <dependency>
@@ -230,6 +231,7 @@
                     <configurationDirectory>config</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+                    <extraJvmArguments>-javaagent:$BASEDIR/config/jolokia-jvm-${jolokia.version}-agent.jar</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>com.oreilly.springdata.hadoop.streaming.Streaming</mainClass>
