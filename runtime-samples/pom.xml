@@ -201,6 +201,12 @@
                 <enabled>false</enabled>
             </snapshots> -->
         </repository>
+        <repository>
+            <!-- Snapshots -->
+            <id>spring-libs-snapshot</id>
+            <name>Spring Maven SNAPSHOT Repository</name>
+            <url>http://repo.springsource.org/libs-snapshot</url>
+        </repository>
     </repositories>
 
     <build>
