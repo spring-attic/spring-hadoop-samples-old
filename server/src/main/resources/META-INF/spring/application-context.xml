@@ -36,13 +36,16 @@
 		<property name="configuration" ref="hadoopConfiguration"/>
 	</bean>
 	
- 	<int-ip:tcp-connection-factory id="syslogListener" 
-  								   type="server"
-  								   port="${syslog.tcp.port}"
-  								   deserializer="lfDeserializer" />
+    <!-- <int-ip:tcp-connection-factory id="syslogListener" 
+                                   type="server"
+                                   port="${syslog.tcp.port}"
+                                   deserializer="lfDeserializer" /> -->
 
-    <int-ip:tcp-inbound-channel-adapter id="tcpAdapter" channel="syslogChannel" connection-factory="syslogListener" />
+    <!-- <int-ip:tcp-inbound-channel-adapter id="tcpAdapter" channel="syslogChannel" connection-factory="syslogListener" /> -->
 
+    <int-ip:udp-inbound-channel-adapter id="udpAdapter" 
+        channel="syslogChannel" port="${syslog.udp.port}" />
+    
  	<bean id="lfDeserializer" class="com.oreilly.springdata.integration.ip.syslog.ByteArrayLfSerializer"/>
 		
 	<int:chain id="TLHadoop" input-channel="syslogChannel">
@@ -52,8 +55,9 @@
 	</int:chain>
 	
 	
-    <bean id="sysLogTransformer" class="com.oreilly.springdata.integration.ip.syslog.SyslogTransformer" />
-	 
+    <!--<bean id="sysLogTransformer" class="com.oreilly.springdata.integration.ip.syslog.SyslogTransformer" />-->
+    <bean id="sysLogTransformer" class="org.springframework.integration.transformer.SyslogToMapTransformer" />
+
 	<bean id="hdfsWritingMessageHandler" class="com.oreilly.springdata.hadoop.streaming.HdfsWritingMessageHandler">
 		<constructor-arg ref="hdfsWriterFactory"/>
 	</bean>
