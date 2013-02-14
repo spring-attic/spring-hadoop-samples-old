@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 /**
  */
 @Component
-public class DemoCommands implements CommandMarker {
+public class RuntimeCommands implements CommandMarker {
 
 	public static String VERSION = "1.0.0.BUILD-SNAPSHOT";
 
@@ -56,25 +56,34 @@ public class DemoCommands implements CommandMarker {
 		return true;
 	}
 
-	@CliCommand(value = "run", help = "Run sample")
-	public String demoRun(
-		@CliOption(key = { "", "sample" }, help = "The sample app to run", mandatory = true,
-				specifiedDefaultValue = "", unspecifiedDefaultValue = "")
-		final Sample sample) {
+	@CliCommand(value = "sample", help = "Run sample tasks")
+	public String sample(
+			@CliOption(key = {"", "app"}, help = "The sample app to run", mandatory = true,
+					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Sample sample,
+			@CliOption(key = {"run"}, help = "Run the app", mandatory = false,
+					specifiedDefaultValue = "true", unspecifiedDefaultValue = "true")
+			final boolean run) {
+		boolean runSample = run;
 		String app = sample.getSample();
-		String command;
-		if (isWindows()) {
-			command	= appPath + "\\runtime\\bin\\" + app + ".bat";
-		} else {
-			command	= appPath + "/runtime/bin/" + app;
+		String result = "";
+		int exitVal = -1;
+		if (runSample) {
+			String command;
+			if (isWindows()) {
+				command	= appPath + "\\runtime\\bin\\" + app + ".bat";
+			} else {
+				command	= appPath + "/runtime/bin/" + app;
+			}
+			System.out.println("Running: " + command);
+			exitVal = executeCommand(command, true);
+			result = "Exited with error code " + exitVal;
 		}
-		System.out.println("Running:" + command);
-		String result = executeCommand(command, true);
 		return result;
 	}
 
-	private String executeCommand(String command, boolean withEnv) {
-		String result="";
+	private int executeCommand(String command, boolean withEnv) {
+		int result=-1;
 		String[] commandTokens;
 		String[] environmentTokens = null;
 		if (withEnv) {
@@ -112,11 +121,11 @@ public class DemoCommands implements CommandMarker {
 			   System.out.println(line);
 		   }
 		   int exitVal = pr.waitFor();
-		   result = "Exited with error code " + exitVal;
-	   } catch(Exception e) {
-		   System.out.println(e.toString());
-		   e.printStackTrace();
-	   }
+		   result = exitVal;
+		} catch(Exception e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+		}
 		return result;
 	}
 

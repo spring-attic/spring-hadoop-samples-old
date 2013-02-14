@@ -35,7 +35,7 @@ public class BannerProvider extends DefaultBannerProvider
 	}
 
 	public String getVersion() {
-		return DemoCommands.VERSION;
+		return RuntimeCommands.VERSION;
 	}
 
 	public String getWelcomeMessage() {
