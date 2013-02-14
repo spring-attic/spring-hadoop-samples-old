@@ -1,19 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.springframework.data</groupId>
+	<version>1.0.0.BUILD-SNAPSHOT</version>
 	<artifactId>spring-data-hadoop-server</artifactId>
-	
 	<name>Spring Data Hadoop - Server</name>
 	
-	<parent>
-		<groupId>org.springframework.data</groupId>
-		<artifactId>spring-data-server</artifactId>
-		<version>1.0.0.BUILD-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-
 	<properties>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	        <spring.version>3.2.1.RELEASE</spring.version>
 	       	<spring.integration.version>2.2.0.RELEASE</spring.integration.version>
             <spring.batch.version>2.1.8.RELEASE</spring.batch.version>
             <spring.batch.admin.version>1.2.2.BUILD-SNAPSHOT</spring.batch.admin.version>
@@ -189,9 +185,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -230,7 +226,19 @@
 			</exclusions>
 		</dependency>		
 
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit-dep</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 
