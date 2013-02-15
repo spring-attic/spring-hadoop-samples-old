@@ -39,7 +39,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	private String appPath = System.getProperty("app.home");
 
-	private StringBuffer logs;
+	private StringBuffer logs = new StringBuffer();
 
 	enum Sample {
 		wordcount("wordcount"),
@@ -73,7 +73,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	boolean serverRunning = false;
 
-	@CliAvailabilityIndicator({"config edit", "readme", "hadoop"})
+	@CliAvailabilityIndicator({"config edit", "readme", "hadoop", "server log"})
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
@@ -86,7 +86,7 @@ public class RuntimeCommands implements CommandMarker {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({"server stop", "server log"})
+	@CliAvailabilityIndicator({"server stop"})
 	public boolean isAvailableToStop() {
 		if (serverRunning) {
 			return true;
@@ -207,7 +207,7 @@ public class RuntimeCommands implements CommandMarker {
 
 		this.logs = new StringBuffer();
 		final String[] finalEnvironmentTokens = environmentTokens;
-		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("shell-"));
+		ExecutorService executorService = Executors.newFixedThreadPool(1, new CustomizableThreadFactory("shell-"));
 		Future f = executorService.submit(new Runnable() {
 			public void run() {
 				try {
