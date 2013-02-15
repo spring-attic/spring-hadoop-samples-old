@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.hadoop.jetty.BatchAdminServer;
 import org.springframework.data.hadoop.jetty.IntegrationServer;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -34,8 +36,9 @@ public class SpringDataServer {
 
 			@Override
 			public Void call() throws Exception {
-				IntegrationServer integrationServer = new IntegrationServer();
-				integrationServer.start();
+				AbstractApplicationContext context = new ClassPathXmlApplicationContext(
+						"/syslog-hdfs/application-context.xml");
+				context.registerShutdownHook();	
 				return null;
 			}
 			

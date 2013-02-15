@@ -237,7 +237,7 @@
                     <assembleDirectory>${project.build.directory}/${app.name}</assembleDirectory>
                     <repositoryLayout>flat</repositoryLayout>
                     <configurationDirectory>config</configurationDirectory>
-                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <copyConfigurationDirectory>false</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
                     <extraJvmArguments>-javaagent:$REPO/jolokia-jvm-${jolokia.version}-agent.jar</extraJvmArguments>
                     <programs>
@@ -260,6 +260,26 @@
                    </execution>
                  </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>config</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <copy todir="target/${app.name}/config">
+                                    <fileset dir="src/main/config" />
+                                </copy>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>            
         </plugins>
     </build>
 </project>
