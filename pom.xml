@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>runtime-samples</module>
+        <module>server</module>
         <module>shell</module>
     </modules>
 

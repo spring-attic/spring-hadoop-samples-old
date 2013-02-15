@@ -7,6 +7,7 @@
     <name>Spring Data Hadoop - Server</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <app.name>server</app.name>
         <spring.version>3.2.1.RELEASE</spring.version>
         <spring.integration.version>2.2.0.RELEASE</spring.integration.version>
         <spring.batch.version>2.1.8.RELEASE</spring.batch.version>
@@ -231,8 +232,9 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
-                <version>1.2.2</version>
+                <version>1.3</version>
                 <configuration>
+                    <assembleDirectory>${project.build.directory}/${app.name}</assembleDirectory>
                     <repositoryLayout>flat</repositoryLayout>
                     <configurationDirectory>config</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>

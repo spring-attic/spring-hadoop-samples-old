@@ -6,8 +6,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.data.hadoop.jetty.BatchAdminServer;
 import org.springframework.data.hadoop.jetty.IntegrationServer;
@@ -25,7 +23,7 @@ public class SpringDataServer {
 		tasks.add(createIntegrationCallable());
 		tasks.add(createAdminCallable());
 		List<Future<Void>> f = executorService.invokeAll(tasks);
-		
+
 	}
 
 	/**

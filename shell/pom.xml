@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.springframework.samples</groupId>
-    <artifactId>spring-hadoop-shell</artifactId>
+    <artifactId>spring-data-hadoop-shell</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <name>Spring Hadoop Samples Shell</name>
     <properties>
@@ -102,6 +102,9 @@
                             <tasks>
                                 <copy todir="target/${app.name}/runtime">
                                     <fileset dir="${project.basedir}/../runtime-samples/target/runtime" />
+                                </copy>
+                                <copy todir="target/${app.name}/server">
+                                    <fileset dir="${project.basedir}/../server/target/server" />
                                 </copy>
                                 <copy todir="target/${app.name}">
                                     <fileset dir="${project.basedir}/docs" />
