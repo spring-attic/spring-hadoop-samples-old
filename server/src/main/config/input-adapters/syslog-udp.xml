@@ -22,9 +22,6 @@
 		http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
-
-	<context:property-placeholder location="properties/syslog.properties"/>
-	
 	
     <int-ip:udp-inbound-channel-adapter id="inputAdapter" 
         channel="inputChannel" port="${syslog.udp.port}" />

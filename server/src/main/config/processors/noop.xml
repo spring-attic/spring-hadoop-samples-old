@@ -25,9 +25,10 @@
 
 
 	<int:chain id="processorChain" input-channel="processorInput" output-channel="processorOutput">
-
+		<int:filter expression="true"/>
 	</int:chain>
 	
 	<int:channel id="processorOutput"/>
 	
+
 </beans>
