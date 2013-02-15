@@ -58,7 +58,7 @@ public class RuntimeCommands implements CommandMarker {
 	}
 
 	enum Server {
-		syslog("server");
+		syslog_hdfs("syslog-hdfs");
 
 		private String app;
 
@@ -129,12 +129,12 @@ public class RuntimeCommands implements CommandMarker {
 		String result = "";
 		String command;
 		if (isWindows()) {
-			command	= appPath + "\\server\\bin\\" + app + ".bat";
+			command	= appPath + "\\server\\bin\\server.bat";
 		} else {
-			command	= appPath + "/server/bin/" + app;
+			command	= appPath + "/server/bin/server";
 		}
-		System.out.println("Running: " + command);
-		result = startCommand(command, true);
+		System.out.println("Running: " + command + " " + app);
+		result = startCommand(command, app, true);
 		this.serverRunning = true;
 		return result;
 	}
@@ -191,7 +191,7 @@ public class RuntimeCommands implements CommandMarker {
 		return result;
 	}
 
-	private String startCommand(String command, boolean withEnv) {
+	private String startCommand(String command, String app, boolean withEnv) {
 		final String[] commandTokens;
 		String[] environmentTokens = null;
 		if (withEnv) {
@@ -200,9 +200,9 @@ public class RuntimeCommands implements CommandMarker {
 			environmentTokens = new String[0];
 		}
 		if (isWindows()) {
-			commandTokens = new String[] {"cmd",  "/c", command};
+			commandTokens = new String[] {"cmd",  "/c", command, "-appConfig", app};
 		} else {
-			commandTokens = new String[] {"sh", command};
+			commandTokens = new String[] {"sh", command, "-appConfig", app};
 		}
 
 		this.logs = new StringBuffer();

@@ -28,6 +28,13 @@
 	<import resource="../input-adapters/syslog-udp.xml"/>
 	<import resource="../processors/noop.xml"/>
 	<import resource="../output-adapters/hdfs.xml"/>
-	
+
+    <!--<int-jmx:mbean-export default-domain="syslog-hdfs"/>-->
+
+   	<context:mbean-server/>
+
+    <context:mbean-export default-domain="spring-data-server"/>
+
+    <bean id="shutdown" class="org.springframework.data.hadoop.server.SpringDataServerShutdown"/>
 
 </beans>
