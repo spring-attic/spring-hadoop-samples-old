@@ -243,8 +243,20 @@
                             <mainClass>com.oreilly.springdata.hadoop.streaming.Streaming</mainClass>
                             <name>streaming</name>
                         </program>
+                        <program>
+                            <mainClass>org.springframework.data.hadoop.server.SpringDataServer</mainClass>
+                            <name>server</name>
+                        </program>
                     </programs>
                 </configuration>
+                <executions>
+                   <execution>
+                     <id>package</id>
+                     <goals>
+                       <goal>assemble</goal>
+                     </goals>
+                   </execution>
+                 </executions>
             </plugin>
         </plugins>
     </build>

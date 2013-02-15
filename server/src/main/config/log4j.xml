@@ -7,7 +7,7 @@
 		<param name="Target" value="System.out" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<!--<param name="ConversionPattern" value="%-5p: %c - %m%n" />-->
-			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
+			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%t] %p %c{1} - %m%n" />
 		</layout>
 	</appender>
 
