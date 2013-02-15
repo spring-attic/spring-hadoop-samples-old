@@ -23,9 +23,11 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
 
-	<import resource="../input-adapters/syslog-udp.xml"/>
-	<import resource="../processors/noop.xml"/>
-	<import resource="../output-adapters/hdfs.xml"/>
-	
 
+	<int:chain id="processorChain" input-channel="processorInput" output-channel="processorOutput">
+
+	</int:chain>
+	
+	<int:channel id="processorOutput"/>
+	
 </beans>

@@ -35,7 +35,7 @@ public class SpringDataServer {
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
 		tasks.add(createIntegrationCallable(options));
-		tasks.add(createAdminCallable());
+		//tasks.add(createAdminCallable());
 		List<Future<Void>> f = executorService.invokeAll(tasks);
 
 	}
