@@ -244,7 +244,7 @@
                     <configurationDirectory>config</configurationDirectory>
                     <copyConfigurationDirectory>false</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-                    <extraJvmArguments>-javaagent:$REPO/jolokia-jvm-${jolokia.version}-agent.jar</extraJvmArguments>
+                    <extraJvmArguments>-javaagent:$REPO/jolokia-jvm-${jolokia.version}-agent.jar=port=8778,host=localhost</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>com.oreilly.springdata.hadoop.streaming.Streaming</mainClass>
