@@ -4,8 +4,6 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
-import org.jolokia.client.request.J4pReadRequest;
-import org.jolokia.client.request.J4pReadResponse;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.shell.commands.OsCommands;
 import org.springframework.shell.commands.OsOperations;
@@ -164,8 +162,7 @@ public class RuntimeCommands implements CommandMarker {
 	@CliCommand(value = "server stop", help = "Stop running server tasks")
 	public String serverStop() {
 		J4pClient j4pClient = new J4pClient("http://localhost:8778/jolokia/");
-		J4pReadRequest read = null;
-		J4pExecRequest exec = null;
+		J4pExecRequest exec;
 		try {
 			exec = new J4pExecRequest("spring-data-server:name=shutdownBean", "shutDown");
 			J4pExecResponse execResp = j4pClient.execute(exec);
