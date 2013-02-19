@@ -164,7 +164,7 @@ public class RuntimeCommands implements CommandMarker {
 		J4pClient j4pClient = new J4pClient("http://localhost:8778/jolokia/");
 		J4pExecRequest exec;
 		try {
-			exec = new J4pExecRequest("spring-data-server:name=shutdownBean", "shutDown");
+			exec = new J4pExecRequest("spring-data-server:name=managementBean", "shutDown");
 			J4pExecResponse execResp = j4pClient.execute(exec);
 		} catch (MalformedObjectNameException e) {
 			System.out.println(e);

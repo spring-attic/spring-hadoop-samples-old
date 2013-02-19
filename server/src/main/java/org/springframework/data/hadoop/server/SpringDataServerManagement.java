@@ -15,8 +15,8 @@ import java.util.concurrent.Future;
 
 /**
  */
-@ManagedResource(objectName = "spring-data-server:name=shutdownBean", description = "Spring Data Server Shutdown Bean")
-public class SpringDataServerShutdown implements ApplicationContextAware {
+@ManagedResource(objectName = "spring-data-server:name=managementBean", description = "Spring Data Server Management Bean")
+public class SpringDataServerManagement implements ApplicationContextAware {
 
 	ApplicationContext applicationContext;
 
