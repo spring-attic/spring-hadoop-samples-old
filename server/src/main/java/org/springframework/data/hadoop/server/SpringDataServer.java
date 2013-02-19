@@ -31,7 +31,8 @@ public class SpringDataServer {
 			parser.printUsage(System.err);
 			System.exit(-1);
 		}
-		
+
+		log.info("RUNNING " + options.getAppConfig());
 		
 		//TODO merge into two dispatcher servlets in web.xml
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
