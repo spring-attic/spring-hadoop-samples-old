@@ -18,5 +18,10 @@
 	<bean id="hadoopFs" class="org.springframework.data.hadoop.fs.FileSystemFactoryBean">
 		<property name="configuration" ref="hadoopConfiguration"/>
 	</bean>
+	
+	<hdp:resource-loader id="hadoopResourceLoader" />	
+
+	<bean id="defaultResourceLoaders" class="org.springframework.data.hadoop.fs.CustomResourceLoaderRegistrar" p:loader-ref="hadoopResourceLoader" />
+	
 
 </beans>

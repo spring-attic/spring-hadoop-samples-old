@@ -53,7 +53,8 @@ public class SpringDataServer {
 		new ClassPathXmlApplicationContext(
 				"/META-INF/spring/batch/override/datasource-context.xml",
 				"/META-INF/spring/batch/initialize/initialize-batch-schema-context.xml",
-				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml"				
+				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml",
+				"/META-INF/spring/batch/initialize/initialize-product-export-table-context.xml"
 			);
 			Console.main();
 	}
@@ -88,12 +89,15 @@ public class SpringDataServer {
 			public Void call() throws Exception {
 				
 				try {
+					log.info("Creating embedded database, initializing Spring Batch Admin schema, initializing product table data");
 					launchDatabase();
 				} catch (SQLException e) {
 					log.error("Could not launch H2 database");
 					log.error(e);
 					System.exit(-1);
 				}
+				
+				log.info("Creating Spring Batch Admin embedded web container.");				
 				BatchAdminServer adminServer = new BatchAdminServer();
 				adminServer.start();
 				return null;
