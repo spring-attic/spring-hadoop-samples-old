@@ -16,6 +16,7 @@
         <slf4j.version>1.7.1</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <jolokia.version>1.0.6</jolokia.version>
+        <jackson.version>1.9.6</jackson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -23,6 +24,22 @@
             <artifactId>spring-shell</artifactId>
             <version>${spring.shell.version}</version>
         </dependency>
+        <!-- TODO remove depenency on commons configuration -->
+         <dependency>
+         	<groupId>commons-configuration</groupId>
+         	<artifactId>commons-configuration</artifactId>
+         	<version>1.8</version>
+         </dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>	
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
