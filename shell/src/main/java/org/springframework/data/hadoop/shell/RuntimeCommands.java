@@ -4,6 +4,7 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
+import org.jolokia.client.request.J4pVersionRequest;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.shell.commands.OsCommands;
 import org.springframework.shell.commands.OsOperations;
@@ -37,8 +38,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	public static String VERSION = "1.0.0.BUILD-SNAPSHOT";
 
-	private static final Logger LOGGER = HandlerUtils
-         .getLogger(OsCommands.class);
+	private static final Logger LOGGER = HandlerUtils.getLogger(OsCommands.class);
 	private static String OS = null;
 	private OsOperations osOperations = new OsOperationsImpl();
 
@@ -47,17 +47,15 @@ public class RuntimeCommands implements CommandMarker {
 	private StringBuffer logs = new StringBuffer();
 
 	enum Sample {
-		wordcount("wordcount"),
-		hive_password_analysis("hive-app"),
-		hive_apache_log_analysis("hive-apache-log-app");
+		wordcount("wordcount"), hive_password_analysis("hive-app"), hive_apache_log_analysis("hive-apache-log-app");
 
 		private String app;
 
-		private Sample(String app){
+		private Sample(String app) {
 			this.app = app;
 		}
 
-		public String getApp(){
+		public String getApp() {
 			return app;
 		}
 	}
@@ -67,23 +65,29 @@ public class RuntimeCommands implements CommandMarker {
 
 		private String app;
 
-		private Server(String app){
+		private Server(String app) {
 			this.app = app;
 		}
 
-		public String getApp(){
+		public String getApp() {
 			return app;
 		}
 	}
 
-	boolean serverRunning = false;
+	private final J4pClient j4pClient;
+	private boolean serverRunning;
 
-	@CliAvailabilityIndicator({"config edit", "readme", "hadoop", "server log"})
+	public RuntimeCommands() {
+		j4pClient = new J4pClient("http://localhost:8778/jolokia/");
+		serverRunning = !serverStatus().contains("not");
+	}
+
+	@CliAvailabilityIndicator({ "config edit", "readme", "hadoop", "server log" })
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({"sample", "server start"})
+	@CliAvailabilityIndicator({ "sample", "server start" })
 	public boolean isAvailableToRun() {
 		if (serverRunning) {
 			return false;
@@ -91,7 +95,7 @@ public class RuntimeCommands implements CommandMarker {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({"server stop"})
+	@CliAvailabilityIndicator({ "server stop", "mon batch", "mon int" })
 	public boolean isAvailableToStop() {
 		if (serverRunning) {
 			return true;
@@ -101,12 +105,8 @@ public class RuntimeCommands implements CommandMarker {
 
 	@CliCommand(value = "sample", help = "Run sample tasks")
 	public String sample(
-			@CliOption(key = {"", "app"}, help = "The app app to run", mandatory = true,
-					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
-			final Sample sample,
-			@CliOption(key = {"run"}, help = "Run the app", mandatory = false,
-					specifiedDefaultValue = "true", unspecifiedDefaultValue = "true")
-			final boolean run) {
+			@CliOption(key = { "", "app" }, help = "The app app to run", mandatory = true, specifiedDefaultValue = "", unspecifiedDefaultValue = "") final Sample sample,
+			@CliOption(key = { "run" }, help = "Run the app", mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "true") final boolean run) {
 		boolean runSample = run;
 		String app = sample.getApp();
 		String result = "";
@@ -114,9 +114,9 @@ public class RuntimeCommands implements CommandMarker {
 		if (runSample) {
 			String command;
 			if (isWindows()) {
-				command	= appPath + "\\runtime\\bin\\" + app + ".bat";
+				command = appPath + "\\runtime\\bin\\" + app + ".bat";
 			} else {
-				command	= appPath + "/runtime/bin/" + app;
+				command = appPath + "/runtime/bin/" + app;
 			}
 			System.out.println("Running: " + command);
 			exitVal = executeCommand(command, true);
@@ -125,18 +125,31 @@ public class RuntimeCommands implements CommandMarker {
 		return result;
 	}
 
+	@CliCommand(value = "server status", help = "Check if server is running")
+	public String serverStatus() {
+		J4pVersionRequest exec;
+		String status = "server is not running";
+		try {
+			
+			exec = new J4pVersionRequest();
+			j4pClient.execute(exec);
+			status = "server is running";
+		} catch (J4pException e) {
+			//System.out.println(e.getMessage());
+		}
+		return status;
+	}
+
 	@CliCommand(value = "server start", help = "Start server tasks")
 	public String serverStart(
-			@CliOption(key = {"", "app"}, help = "The app app to run", mandatory = true,
-					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
-			final Server server) {
+			@CliOption(key = { "", "app" }, help = "The app app to run", mandatory = true, specifiedDefaultValue = "", unspecifiedDefaultValue = "") final Server server) {
 		String app = server.getApp();
 		String result = "";
 		String command;
 		if (isWindows()) {
-			command	= appPath + "\\server\\bin\\server.bat";
+			command = appPath + "\\server\\bin\\server.bat";
 		} else {
-			command	= appPath + "/server/bin/server";
+			command = appPath + "/server/bin/server";
 		}
 		System.out.println("Running: " + command + " " + app);
 		result = startCommand(command, app, true);
@@ -146,9 +159,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	@CliCommand(value = "server log", help = "Show logs for running server tasks")
 	public String serverLog(
-			@CliOption(key = {"clear"}, help = "Clear th log after displaying", mandatory = false,
-					specifiedDefaultValue = "true", unspecifiedDefaultValue = "false")
-			final boolean clear) {
+			@CliOption(key = { "clear" }, help = "Clear the log after displaying", mandatory = false, specifiedDefaultValue = "true", unspecifiedDefaultValue = "false") final boolean clear) {
 		System.out.println(this.logs.toString());
 		if (clear) {
 			int lastPos = this.logs.length() - 1;
@@ -161,7 +172,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	@CliCommand(value = "server stop", help = "Stop running server tasks")
 	public String serverStop() {
-		J4pClient j4pClient = new J4pClient("http://localhost:8778/jolokia/");
+
 		J4pExecRequest exec;
 		try {
 			exec = new J4pExecRequest("spring-data-server:name=shutdownBean", "shutDown");
@@ -175,8 +186,20 @@ public class RuntimeCommands implements CommandMarker {
 		return "Stop requested";
 	}
 
+	@CliCommand(value = "mon batch", help = "Monitor and control batch components")
+	public Object monitorBatch() {
+		return null;
+	}
+
+	@CliCommand(value = "mon int input adapters", help = "Monitor and control integration components")
+	public Object monitorInputAdapters(
+			@CliOption(key = { "", "list" }, help = "Monitor and control input adapters", mandatory = false, specifiedDefaultValue = "", unspecifiedDefaultValue = "") boolean list 
+			) {
+		return null;
+	}
+
 	private int executeCommand(String command, boolean withEnv) {
-		int result=-1;
+		int result = -1;
 		String[] commandTokens;
 		String[] environmentTokens = null;
 		if (withEnv) {
@@ -185,21 +208,21 @@ public class RuntimeCommands implements CommandMarker {
 			environmentTokens = new String[0];
 		}
 		if (isWindows()) {
-			commandTokens = new String[] {"cmd",  "/c", command};
+			commandTokens = new String[] { "cmd", "/c", command };
 		} else {
-			commandTokens = new String[] {"sh", command};
+			commandTokens = new String[] { "sh", command };
 		}
 		try {
-		   Runtime rt = Runtime.getRuntime();
-		   Process pr = rt.exec(commandTokens, environmentTokens);
-		   BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-		   String line=null;
-		   while((line=sysout.readLine()) != null) {
-			   System.out.println(line);
-		   }
-		   int exitVal = pr.waitFor();
-		   result = exitVal;
-		} catch(Exception e) {
+			Runtime rt = Runtime.getRuntime();
+			Process pr = rt.exec(commandTokens, environmentTokens);
+			BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+			String line = null;
+			while ((line = sysout.readLine()) != null) {
+				System.out.println(line);
+			}
+			int exitVal = pr.waitFor();
+			result = exitVal;
+		} catch (Exception e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
 		}
@@ -215,9 +238,9 @@ public class RuntimeCommands implements CommandMarker {
 			environmentTokens = new String[0];
 		}
 		if (isWindows()) {
-			commandTokens = new String[] {"cmd",  "/c", command, "-appConfig", app};
+			commandTokens = new String[] { "cmd", "/c", command, "-appConfig", app };
 		} else {
-			commandTokens = new String[] {"sh", command, "-appConfig", app};
+			commandTokens = new String[] { "sh", command, "-appConfig", app };
 		}
 
 		this.logs = new StringBuffer();
@@ -226,17 +249,17 @@ public class RuntimeCommands implements CommandMarker {
 		Future f = executorService.submit(new Runnable() {
 			public void run() {
 				try {
-				   Runtime rt = Runtime.getRuntime();
-				   Process pr = rt.exec(commandTokens, finalEnvironmentTokens);
-				   BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-				   String line=null;
-				   while((line=sysout.readLine()) != null) {
-					   //System.out.println(line);
-					   logs.append(line + "\n");
-				   }
-				   int exitVal = pr.waitFor();
+					Runtime rt = Runtime.getRuntime();
+					Process pr = rt.exec(commandTokens, finalEnvironmentTokens);
+					BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+					String line = null;
+					while ((line = sysout.readLine()) != null) {
+						//System.out.println(line);
+						logs.append(line + "\n");
+					}
+					int exitVal = pr.waitFor();
 					logs.append("Completed with exit code " + exitVal + "\n");
-				} catch(Exception e) {
+				} catch (Exception e) {
 					System.out.println(e.toString());
 					e.printStackTrace();
 				}
@@ -257,7 +280,7 @@ public class RuntimeCommands implements CommandMarker {
 				env = env + (env.length() > 0 ? " " : "") + "-D" + prop.getKey() + "=" + prop.getValue();
 			}
 			if (env.length() > 0) {
-				environmentTokens = new String[]{"JAVA_OPTS=" + env};
+				environmentTokens = new String[] { "JAVA_OPTS=" + env };
 			} else {
 				environmentTokens = new String[0];
 			}
@@ -268,33 +291,31 @@ public class RuntimeCommands implements CommandMarker {
 	}
 
 	private static String getOsName() {
-		if(OS == null) {
+		if (OS == null) {
 			OS = System.getProperty("os.name");
 		}
 		return OS;
 	}
 
 	public static boolean isWindows() {
-    	return getOsName().startsWith("Windows");
- 	}
+		return getOsName().startsWith("Windows");
+	}
 
 	@CliCommand(value = "config edit", help = "Edit config properties")
 	public String demoEdit() {
 		String fname = appPath + "/config/config.properties";
 		String command;
 		if (isWindows()) {
-			command = "cmd /c " +appPath + "/bin/edit " + fname;
+			command = "cmd /c " + appPath + "/bin/edit " + fname;
 		} else {
-			command = "sh " + appPath +"/bin/edit " + fname;
+			command = "sh " + appPath + "/bin/edit " + fname;
 		}
 		System.out.println("command is:" + command);
 		if (command != null && command.length() > 0) {
 			try {
 				osOperations.executeCommand(command);
-			}
-			catch (final IOException e) {
-				LOGGER.severe("Unable to execute command " + command + " ["
-					 + e.getMessage() + "]");
+			} catch (final IOException e) {
+				LOGGER.severe("Unable to execute command " + command + " [" + e.getMessage() + "]");
 			}
 		}
 		return "Completed.";
@@ -313,10 +334,8 @@ public class RuntimeCommands implements CommandMarker {
 		if (command != null && command.length() > 0) {
 			try {
 				osOperations.executeCommand(command);
-			}
-			catch (final IOException e) {
-				LOGGER.severe("Unable to execute command " + command + " ["
-					 + e.getMessage() + "]");
+			} catch (final IOException e) {
+				LOGGER.severe("Unable to execute command " + command + " [" + e.getMessage() + "]");
 			}
 		}
 		return "";
@@ -324,9 +343,7 @@ public class RuntimeCommands implements CommandMarker {
 
 	@CliCommand(value = "hadoop", help = "Allows execution of hadoop commands.")
 	public void command(
-			@CliOption(key = {"", "command"}, mandatory = false, specifiedDefaultValue = "",
-					unspecifiedDefaultValue = "", help = "The hadoop command to execute")
-			final String command) {
+			@CliOption(key = { "", "command" }, mandatory = false, specifiedDefaultValue = "", unspecifiedDefaultValue = "", help = "The hadoop command to execute") final String command) {
 
 		String hadoopCommand = "hadoop " + command;
 		System.out.println("command is:" + hadoopCommand);
@@ -334,8 +351,7 @@ public class RuntimeCommands implements CommandMarker {
 			try {
 				osOperations.executeCommand(hadoopCommand);
 			} catch (final IOException e) {
-				LOGGER.severe("Unable to execute '" + hadoopCommand + "' ["
-						+ e.getMessage() + "]");
+				LOGGER.severe("Unable to execute '" + hadoopCommand + "' [" + e.getMessage() + "]");
 			}
 		}
 	}
