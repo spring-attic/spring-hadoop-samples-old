@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,37 +33,36 @@ public class SpringDataServer {
 			System.exit(-1);
 		}
 
-		log.info("RUNNING " + options.getAppConfig());
-		
-		try {
-			launchDatabase(args);
-		} catch (SQLException e) {
-			log.error("Could not launch H2 database");
-			log.error(e);
-			System.exit(-1);
-		}
-		
-		//TODO merge into two dispatcher servlets in web.xml
+		log.info("RUNNING SpringDataServer");
+				
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
-		tasks.add(createIntegrationCallable(options));
-		tasks.add(createAdminCallable());
-		List<Future<Void>> f = executorService.invokeAll(tasks);
+		if (options.getAppConfig() != null) {
+			tasks.add(createIntegrationCallable(options));
+		} else if (options.isBatchAdmin() == true ) {
+			tasks.add(createAdminCallable());
+		} else {
+			parser.printUsage(System.err);
+		}
+		executorService.invokeAll(tasks);
+		
 		
 	}
 
-	private static void launchDatabase(String[] args) throws SQLException {
+	private static void launchDatabase() throws SQLException {
 		new ClassPathXmlApplicationContext(
 				"/META-INF/spring/batch/override/datasource-context.xml",
-				"/META-INF/spring/batch/initialize/initialize-database-context.xml"
+				"/META-INF/spring/batch/initialize/initialize-batch-schema-context.xml",
+				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml"				
 			);
-			Console.main(args);
+			Console.main();
 	}
 
 	/**
 	 * 
 	 */
 	private static Callable<Void> createIntegrationCallable(final SpringDataServerOptions options) {
+		log.info("Running Spring Integration Application in config dir [" + options.getAppConfig() + "]");
 		Callable<Void> siCallable = new Callable<Void>() {
 
 			@Override
@@ -83,9 +81,18 @@ public class SpringDataServer {
 	 * 
 	 */
 	private static Callable<Void> createAdminCallable() {
+		log.info("Running Spring Batch Admin");
 		Callable<Void> adminCallable = new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
+				
+				try {
+					launchDatabase();
+				} catch (SQLException e) {
+					log.error("Could not launch H2 database");
+					log.error(e);
+					System.exit(-1);
+				}
 				BatchAdminServer adminServer = new BatchAdminServer();
 				adminServer.start();
 				return null;
