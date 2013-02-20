@@ -64,7 +64,8 @@ public class RuntimeCommands implements CommandMarker {
 
 	enum Server {
 		syslog_hdfs("syslog-hdfs"),
-		file_polling("file-polling");
+		file_polling("file-polling"),
+		ftp("ftp");
 
 		private String app;
 

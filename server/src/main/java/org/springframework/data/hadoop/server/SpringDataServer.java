@@ -33,7 +33,7 @@ public class SpringDataServer {
 			System.exit(-1);
 		}
 
-		log.info("RUNNING SpringDataServer");
+		log.info("Running SpringDataServer");
 				
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
@@ -67,9 +67,10 @@ public class SpringDataServer {
 
 			@Override
 			public Void call() throws Exception {
-				AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-						"/" + options.getAppConfig() + "/application-context.xml");
-				context.registerShutdownHook();	
+				String appContextFile = "/" + options.getAppConfig() + "/application-context.xml";
+				log.info("Loading context " + appContextFile);
+				AbstractApplicationContext context = new ClassPathXmlApplicationContext(appContextFile);
+				context.registerShutdownHook();
 				return null;
 			}
 			
