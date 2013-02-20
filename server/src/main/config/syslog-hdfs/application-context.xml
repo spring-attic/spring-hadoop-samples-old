@@ -35,6 +35,6 @@
 
     <context:mbean-export default-domain="spring-data-server"/>
 
-    <bean id="shutdown" class="org.springframework.data.hadoop.server.SpringDataServerShutdown"/>
+    <bean id="shutdown" class="org.springframework.data.hadoop.server.SpringDataServerManagement"/>
 
 </beans>

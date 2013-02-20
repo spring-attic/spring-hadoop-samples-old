@@ -1,22 +1,20 @@
 package org.springframework.data.hadoop.server;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 /**
  */
-@ManagedResource(objectName = "spring-data-server:name=shutdownBean", description = "Spring Data Server Shutdown Bean")
-public class SpringDataServerShutdown implements ApplicationContextAware {
+@ManagedResource(objectName = "spring-data-server:name=managementBean", description = "Spring Data Server Management Bean")
+public class SpringDataServerManagement implements ApplicationContextAware {
 
 	ApplicationContext applicationContext;
 
@@ -31,7 +29,7 @@ public class SpringDataServerShutdown implements ApplicationContextAware {
 			((ConfigurableApplicationContext)applicationContext).stop();
 
 			ExecutorService executorService = Executors.newFixedThreadPool(1, new CustomizableThreadFactory("shell-"));
-			Future f = executorService.submit(new Runnable() {
+			executorService.submit(new Runnable() {
 				public void run() {
 					try {
 						try {

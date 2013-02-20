@@ -1,14 +1,15 @@
 package org.springframework.data.hadoop.server;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.h2.tools.Console;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -31,28 +32,45 @@ public class SpringDataServer {
 			parser.printUsage(System.err);
 			System.exit(-1);
 		}
-		
-		
-		//TODO merge into two dispatcher servlets in web.xml
+
+		log.info("Running SpringDataServer");
+				
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
-		tasks.add(createIntegrationCallable(options));
-		//tasks.add(createAdminCallable());
-		List<Future<Void>> f = executorService.invokeAll(tasks);
+		if (options.getAppConfig() != null) {
+			tasks.add(createIntegrationCallable(options));
+		} else if (options.isBatchAdmin() == true ) {
+			tasks.add(createAdminCallable());
+		} else {
+			parser.printUsage(System.err);
+		}
+		executorService.invokeAll(tasks);
 		
+		
+	}
+
+	private static void launchDatabase() throws SQLException {
+		new ClassPathXmlApplicationContext(
+				"/META-INF/spring/batch/override/datasource-context.xml",
+				"/META-INF/spring/batch/initialize/initialize-batch-schema-context.xml",
+				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml"				
+			);
+			Console.main();
 	}
 
 	/**
 	 * 
 	 */
 	private static Callable<Void> createIntegrationCallable(final SpringDataServerOptions options) {
+		log.info("Running Spring Integration Application in config dir [" + options.getAppConfig() + "]");
 		Callable<Void> siCallable = new Callable<Void>() {
 
 			@Override
 			public Void call() throws Exception {
-				AbstractApplicationContext context = new ClassPathXmlApplicationContext(
-						"/" + options.getAppConfig() + "/application-context.xml");
-				context.registerShutdownHook();	
+				String appContextFile = "/" + options.getAppConfig() + "/application-context.xml";
+				log.info("Loading context " + appContextFile);
+				AbstractApplicationContext context = new ClassPathXmlApplicationContext(appContextFile);
+				context.registerShutdownHook();
 				return null;
 			}
 			
@@ -64,9 +82,18 @@ public class SpringDataServer {
 	 * 
 	 */
 	private static Callable<Void> createAdminCallable() {
+		log.info("Running Spring Batch Admin");
 		Callable<Void> adminCallable = new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
+				
+				try {
+					launchDatabase();
+				} catch (SQLException e) {
+					log.error("Could not launch H2 database");
+					log.error(e);
+					System.exit(-1);
+				}
 				BatchAdminServer adminServer = new BatchAdminServer();
 				adminServer.start();
 				return null;

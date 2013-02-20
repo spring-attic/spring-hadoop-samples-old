@@ -11,7 +11,7 @@ public class BatchAdminServer {
 	private String webappDirLocation = "src/main/resources/META-INF/webapp/";
 
 	public BatchAdminServer() {
-		this(8080);
+		this(8081);
 	}
 
 	public BatchAdminServer(int port) {
