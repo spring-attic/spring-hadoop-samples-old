@@ -4,8 +4,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.util.StringUtils;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@ManagedResource(objectName = "spring-data-server:name=managementBean", description = "Spring Data Server Management Bean")
 public class BatchAdminServer {
 
 	private static final Log log = LogFactory.getLog(BatchAdminServer.class);
@@ -48,5 +56,23 @@ public class BatchAdminServer {
 	
 	public void stop() throws Exception {
 		server.stop();
+	}
+
+	@ManagedOperation
+	public void shutDown() throws Exception {
+
+		stop();
+
+		ExecutorService executorService = Executors.newFixedThreadPool(1, new CustomizableThreadFactory("shell-"));
+		executorService.submit(new Runnable() {
+			public void run() {
+				try {
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {}
+					System.exit(0);
+				} catch(Exception e) {}
+			}
+		});
 	}
 }
