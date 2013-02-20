@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -46,6 +47,8 @@ public class RuntimeCommands implements CommandMarker {
 
 	private StringBuffer logs = new StringBuffer();
 
+	private org.h2.tools.Server dbWebServer;
+
 	enum Sample {
 		wordcount("wordcount"),
 		hive_password_analysis("hive-app"),
@@ -60,6 +63,11 @@ public class RuntimeCommands implements CommandMarker {
 		public String getApp(){
 			return app;
 		}
+	}
+
+	enum Console {
+		batch_admin,
+		database;
 	}
 
 	enum Server {
@@ -81,12 +89,12 @@ public class RuntimeCommands implements CommandMarker {
 
 	boolean serverRunning = false;
 
-	@CliAvailabilityIndicator({"config edit", "readme", "hadoop", "server log"})
+	@CliAvailabilityIndicator({"config edit", "readme", "launch", "hadoop", "server log"})
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({"sample", "server start"})
+	@CliAvailabilityIndicator({"run sample", "server start"})
 	public boolean isAvailableToRun() {
 		if (serverRunning) {
 			return false;
@@ -102,9 +110,43 @@ public class RuntimeCommands implements CommandMarker {
 		return false;
 	}
 
-	@CliCommand(value = "sample", help = "Run sample tasks")
-	public String sample(
-			@CliOption(key = {"", "app"}, help = "The app app to run", mandatory = true,
+	@CliCommand(value = "launch", help = "Launch monitoring console")
+	public String launch(
+			@CliOption(key = {"", "console"}, help = "The console to run", mandatory = true,
+					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Console console) {
+		String result = "";
+		if (console == Console.batch_admin) {
+			String url = "http://localhost:8081";
+			try {
+				java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+			} catch (IOException e) {
+				result = e.getMessage();
+			}
+		}
+		else if (console == Console.database) {
+			if (dbWebServer == null) {
+				try {
+//					org.h2.tools.Console.main("-browser");
+					dbWebServer = org.h2.tools.Server.createWebServer();
+					dbWebServer.start();
+				} catch (SQLException e) {
+					result = e.getMessage();
+				}
+			}
+			try {
+				org.h2.tools.Server.openBrowser(dbWebServer.getURL());
+			} catch (Exception e) {
+				result = e.getMessage();
+			}
+
+		}
+		return result;
+	}
+
+	@CliCommand(value = "run sample", help = "Run sample tasks")
+	public String run(
+			@CliOption(key = {"", "app"}, help = "The sample app to run", mandatory = true,
 					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
 			final Sample sample,
 			@CliOption(key = {"run"}, help = "Run the app", mandatory = false,

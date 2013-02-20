@@ -4,7 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
@@ -20,6 +19,7 @@ public class BatchAdminServer {
 
 	private Server server;
 	private int port;
+	private org.h2.tools.Server databaseServer;
 
 	private String webappDirLocation = "src/main/resources/META-INF/webapp/";
 
@@ -51,10 +51,12 @@ public class BatchAdminServer {
 
 		this.server.setStopAtShutdown(true);
 		this.server.start();
+		databaseServer = org.h2.tools.Server.createTcpServer(new String[]{"-tcpAllowOthers"}).start();
 		this.server.join();
 	}
 	
 	public void stop() throws Exception {
+		databaseServer.stop();
 		server.stop();
 	}
 

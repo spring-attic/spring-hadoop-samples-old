@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.h2.tools.Console;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -56,7 +55,6 @@ public class SpringDataServer {
 				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml",
 				"/META-INF/spring/batch/initialize/initialize-product-export-table-context.xml"
 			);
-			//Console.main();
 	}
 
 	/**
