@@ -282,6 +282,9 @@
                                 <copy todir="target/${app.name}/config">
                                     <fileset dir="src/main/config" />
                                 </copy>
+                                <copy todir="target/${app.name}/webapp">
+                                    <fileset dir="src/main/resources/META-INF/webapp" />
+                                </copy>
                             </tasks>
                         </configuration>
                         <goals>

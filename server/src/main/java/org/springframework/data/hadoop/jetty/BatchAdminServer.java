@@ -1,9 +1,14 @@
 package org.springframework.data.hadoop.jetty;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.springframework.util.StringUtils;
 
 public class BatchAdminServer {
+
+	private static final Log log = LogFactory.getLog(BatchAdminServer.class);
 
 	private Server server;
 	private int port;
@@ -16,6 +21,11 @@ public class BatchAdminServer {
 
 	public BatchAdminServer(int port) {
 		this.port = port;
+		String path = System.getProperty("app.home");
+		if (StringUtils.hasText(path)) {
+			webappDirLocation = path + "/webapp/";
+			log.info("Loading BatchAdminServer webapp from " + webappDirLocation);
+		}
 	}
 
 	public void start() throws Exception {
