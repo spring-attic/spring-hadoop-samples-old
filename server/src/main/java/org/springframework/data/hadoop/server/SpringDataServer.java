@@ -56,7 +56,7 @@ public class SpringDataServer {
 				"/META-INF/spring/batch/initialize/initialize-product-table-context.xml",
 				"/META-INF/spring/batch/initialize/initialize-product-export-table-context.xml"
 			);
-			Console.main();
+			//Console.main();
 	}
 
 	/**

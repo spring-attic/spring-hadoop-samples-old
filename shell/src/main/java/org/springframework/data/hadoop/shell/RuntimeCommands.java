@@ -65,7 +65,8 @@ public class RuntimeCommands implements CommandMarker {
 	enum Server {
 		syslog_hdfs("syslog-hdfs"),
 		file_polling("file-polling"),
-		ftp("ftp");
+		ftp("ftp"),
+		batch_admin("batchAdmin");
 
 		private String app;
 
@@ -216,10 +217,18 @@ public class RuntimeCommands implements CommandMarker {
 		} else {
 			environmentTokens = new String[0];
 		}
-		if (isWindows()) {
-			commandTokens = new String[] {"cmd",  "/c", command, "-appConfig", app};
+		if (app.startsWith("batch")) {
+			if (isWindows()) {
+				commandTokens = new String[] {"cmd",  "/c", command, "-" + app};
+			} else {
+				commandTokens = new String[] {"sh", command, "-" + app};
+			}
 		} else {
-			commandTokens = new String[] {"sh", command, "-appConfig", app};
+			if (isWindows()) {
+				commandTokens = new String[] {"cmd",  "/c", command, "-appConfig", app};
+			} else {
+				commandTokens = new String[] {"sh", command, "-appConfig", app};
+			}
 		}
 
 		this.logs = new StringBuffer();
