@@ -1,5 +1,6 @@
 package org.springframework.data.hadoop.server;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -9,6 +10,7 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.h2.tools.Console;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -34,13 +36,29 @@ public class SpringDataServer {
 
 		log.info("RUNNING " + options.getAppConfig());
 		
+		try {
+			launchDatabase(args);
+		} catch (SQLException e) {
+			log.error("Could not launch H2 database");
+			log.error(e);
+			System.exit(-1);
+		}
+		
 		//TODO merge into two dispatcher servlets in web.xml
 		ExecutorService executorService = Executors.newFixedThreadPool(4, new CustomizableThreadFactory("server-"));
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>();
-		tasks.add(createIntegrationCallable(options));
-		//tasks.add(createAdminCallable());
+		//tasks.add(createIntegrationCallable(options));
+		tasks.add(createAdminCallable());
 		List<Future<Void>> f = executorService.invokeAll(tasks);
 		
+	}
+
+	private static void launchDatabase(String[] args) throws SQLException {
+		new ClassPathXmlApplicationContext(
+				"/META-INF/spring/batch/override/datasource-context.xml",
+				"/META-INF/spring/batch/initialize/initialize-database-context.xml"
+			);
+			Console.main(args);
 	}
 
 	/**
