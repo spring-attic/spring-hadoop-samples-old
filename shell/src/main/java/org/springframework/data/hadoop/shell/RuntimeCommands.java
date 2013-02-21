@@ -58,7 +58,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 
 	public void onApplicationEvent(ContextClosedEvent event) {
 		if (serverRunning) {
-			System.out.println("Closing running server.");
+			System.out.println("Stopping running server.");
 			serverStop();
 		}
 	}
@@ -88,7 +88,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		syslog_hdfs("syslog-hdfs"),
 		file_polling("file-polling"),
 		ftp("ftp"),
-		batch_jobs("batchAdmin");
+		batch_jobs("-batchAdmin");
 
 		private String app;
 
@@ -273,11 +273,11 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		} else {
 			environmentTokens = new String[0];
 		}
-		if (app.startsWith("batch")) {
+		if (app.startsWith("-")) {
 			if (isWindows()) {
-				commandTokens = new String[] {"cmd",  "/c", command, "-" + app};
+				commandTokens = new String[] {"cmd",  "/c", command, app};
 			} else {
-				commandTokens = new String[] {"sh", command, "-" + app};
+				commandTokens = new String[] {"sh", command, app};
 			}
 		} else {
 			if (isWindows()) {
