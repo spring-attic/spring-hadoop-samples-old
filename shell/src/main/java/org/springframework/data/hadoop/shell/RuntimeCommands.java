@@ -4,6 +4,8 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.shell.commands.OsCommands;
 import org.springframework.shell.commands.OsOperations;
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
 /**
  */
 @Component
-public class RuntimeCommands implements CommandMarker {
+public class RuntimeCommands implements CommandMarker, ApplicationListener<ContextClosedEvent> {
 
 	public static String VERSION = "1.0.0.BUILD-SNAPSHOT";
 
@@ -48,6 +50,13 @@ public class RuntimeCommands implements CommandMarker {
 	private StringBuffer logs = new StringBuffer();
 
 	private org.h2.tools.Server dbWebServer;
+
+	public void onApplicationEvent(ContextClosedEvent event) {
+		if (serverRunning) {
+			System.out.println("Closing running server.");
+			serverStop();
+		}
+	}
 
 	enum Sample {
 		wordcount("wordcount"),
