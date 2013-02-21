@@ -8,7 +8,6 @@
     <url>http://www.springsource.org/spring-data/hadoop</url>
     <packaging>pom</packaging>
     <modules>
-        <module>runtime-samples</module>
         <module>server</module>
         <module>shell</module>
     </modules>

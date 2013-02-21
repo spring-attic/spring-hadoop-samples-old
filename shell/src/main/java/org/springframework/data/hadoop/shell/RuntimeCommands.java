@@ -159,9 +159,9 @@ public class RuntimeCommands implements CommandMarker {
 		if (runSample) {
 			String command;
 			if (isWindows()) {
-				command	= appPath + "\\runtime\\bin\\" + app + ".bat";
+				command	= appPath + "\\server\\bin\\" + app + ".bat";
 			} else {
-				command	= appPath + "/runtime/bin/" + app;
+				command	= appPath + "/server/bin/" + app;
 			}
 			System.out.println("Running: " + command);
 			exitVal = executeCommand(command, true);

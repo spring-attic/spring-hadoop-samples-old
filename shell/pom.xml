@@ -193,9 +193,6 @@
                         <phase>package</phase>
                         <configuration>
                             <tasks>
-                                <copy todir="target/${app.name}/runtime">
-                                    <fileset dir="${project.basedir}/../runtime-samples/target/runtime" />
-                                </copy>
                                 <copy todir="target/${app.name}/server">
                                     <fileset dir="${project.basedir}/../server/target/server" />
                                 </copy>

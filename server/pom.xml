@@ -13,9 +13,12 @@
         <spring.batch.version>2.1.8.RELEASE</spring.batch.version>
         <spring.batch.admin.version>1.2.2.BUILD-SNAPSHOT</spring.batch.admin.version>
         <spring.hadoop.version>1.0.0.BUILD-SNAPSHOT</spring.hadoop.version>
+        <hadoop.version>1.1.1</hadoop.version>
+        <hive.version>0.9.0</hive.version>
+        <thrift.version>0.7.0</thrift.version>
         <spring.data.mongodb.version>1.2.0.RELEASE</spring.data.mongodb.version>
         <h2.version>1.3.156</h2.version>
-        <hadoop.version>1.0.1</hadoop.version>
+        <slf4j.version>1.7.1</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <jolokia.version>1.0.6</jolokia.version>
     </properties>
@@ -44,6 +47,107 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-metastore</artifactId>
+            <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-service</artifactId>
+            <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--  thift only needed as compile time to support 'native' implementation of HivePasswordRepository -->
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${thrift.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
+            <version>${thrift.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- runtime Hive deps start -->
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-common</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-builtins</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-shims</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-serde</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-contrib</artifactId>
+            <version>${hive.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- runtime Hive deps end -->
+        <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-file</artifactId>
             <version>${spring.integration.version}</version>
@@ -64,10 +168,10 @@
             <version>${spring.integration.version}</version>
         </dependency>
         <dependency>
-   			<groupId>org.springframework.integration</groupId>
-   			<artifactId>spring-integration-ftp</artifactId>
-   			<version>${spring.integration.version}</version>
-   		</dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-ftp</artifactId>
+            <version>${spring.integration.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-jmx</artifactId>
@@ -143,6 +247,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
@@ -162,9 +271,30 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>1.8.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -221,9 +351,9 @@
             <classifier>agent</classifier>
         </dependency>
         <dependency>
-        	<groupId>args4j</groupId>
-        	<artifactId>args4j</artifactId>
-        	<version>2.0.16</version>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.16</version>
         </dependency>
     </dependencies>
     <repositories>
@@ -247,6 +377,7 @@
                 <configuration>
                     <assembleDirectory>${project.build.directory}/${app.name}</assembleDirectory>
                     <repositoryLayout>flat</repositoryLayout>
+                    <repositoryName>lib</repositoryName>
                     <configurationDirectory>config</configurationDirectory>
                     <copyConfigurationDirectory>false</copyConfigurationDirectory>
                     <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
@@ -260,16 +391,35 @@
                             <mainClass>org.springframework.data.hadoop.server.SpringDataServer</mainClass>
                             <name>server</name>
                         </program>
+                        <program>
+                            <mainClass>org.springframework.samples.hadoop.runtime.Launcher</mainClass>
+                            <name>wordcount</name>
+                            <commandLineArguments>
+                                <commandLineArgument>wordcount</commandLineArgument>
+                            </commandLineArguments>
+                        </program>
+                        <program>
+                            <mainClass>org.springframework.samples.hadoop.runtime.HiveApp</mainClass>
+                            <name>hive-app</name>
+                        </program>
+                        <program>
+                            <mainClass>org.springframework.samples.hadoop.runtime.HiveJdbcApp</mainClass>
+                            <name>hive-jdbc-app</name>
+                        </program>
+                        <program>
+                            <mainClass>org.springframework.samples.hadoop.runtime.HiveAppWithApacheLogs</mainClass>
+                            <name>hive-apache-log-app</name>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>
-                   <execution>
-                     <id>package</id>
-                     <goals>
-                       <goal>assemble</goal>
-                     </goals>
-                   </execution>
-                 </executions>
+                    <execution>
+                        <id>package</id>
+                        <goals>
+                            <goal>assemble</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -281,10 +431,13 @@
                         <configuration>
                             <tasks>
                                 <copy todir="target/${app.name}/config">
-                                    <fileset dir="src/main/config" />
+                                    <fileset dir="src/main/config"/>
                                 </copy>
                                 <copy todir="target/${app.name}/webapp">
-                                    <fileset dir="src/main/resources/META-INF/webapp" />
+                                    <fileset dir="src/main/resources/META-INF/webapp"/>
+                                </copy>
+                                <copy todir="target/${app.name}/data">
+                                    <fileset dir="src/main/data"/>
                                 </copy>
                             </tasks>
                         </configuration>
@@ -293,7 +446,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
         </plugins>
     </build>
 </project>
