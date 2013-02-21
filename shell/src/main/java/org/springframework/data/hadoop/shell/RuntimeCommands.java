@@ -88,7 +88,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		syslog_hdfs("syslog-hdfs"),
 		file_polling("file-polling"),
 		ftp("ftp"),
-		batch_jobs("batchJobs");
+		batch_jobs("batchAdmin");
 
 		private String app;
 
@@ -298,7 +298,6 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 				   BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 				   String line=null;
 				   while((line=sysout.readLine()) != null) {
-					   //System.out.println(line);
 					   logs.append(line + "\n");
 				   }
 				   int exitVal = pr.waitFor();
@@ -319,12 +318,10 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 			Reader propsReader = new FileReader(props);
 			Properties configProps = new Properties();
 			configProps.load(propsReader);
-			System.out.println(configProps);
 			String env = "";
 			for (Map.Entry prop : configProps.entrySet()) {
 				env = env + (env.length() > 0 ? " " : "") + "-D" + prop.getKey() + "=" + prop.getValue();
 			}
-			System.out.println("JAVA_OPTS=" + env);
 			if (env.length() > 0) {
 				environmentTokens = new String[]{"JAVA_OPTS=" + env};
 			} else {
