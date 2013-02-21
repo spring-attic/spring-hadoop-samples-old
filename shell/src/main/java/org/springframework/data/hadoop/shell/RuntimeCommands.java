@@ -114,7 +114,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		return true;
 	}
 
-	@CliAvailabilityIndicator({"run sample", "server start"})
+	@CliAvailabilityIndicator({"run", "server start"})
 	public boolean isAvailableToRun() {
 		if (serverRunning) {
 			return false;
@@ -164,29 +164,23 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		return result;
 	}
 
-	@CliCommand(value = "run sample", help = "Run sample tasks")
+	@CliCommand(value = "run", help = "Run standalone app tasks")
 	public String run(
-			@CliOption(key = {"", "app"}, help = "The sample app to run", mandatory = true,
+			@CliOption(key = {"", "app"}, help = "The standalone app to run", mandatory = true,
 					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
-			final Sample sample,
-			@CliOption(key = {"run"}, help = "Run the app", mandatory = false,
-					specifiedDefaultValue = "true", unspecifiedDefaultValue = "true")
-			final boolean run) {
-		boolean runSample = run;
+			final Sample sample) {
 		String app = sample.getApp();
 		String result = "";
 		int exitVal = -1;
-		if (runSample) {
-			String command;
-			if (isWindows()) {
-				command	= appPath + "\\server\\bin\\" + app + ".bat";
-			} else {
-				command	= appPath + "/server/bin/" + app;
-			}
-			System.out.println("Running: " + command);
-			exitVal = executeCommand(command, true);
-			result = "Exited with error code " + exitVal;
+		String command;
+		if (isWindows()) {
+			command	= appPath + "\\runtime\\bin\\" + app + ".bat";
+		} else {
+			command	= appPath + "/runtime/bin/" + app;
 		}
+		System.out.println("Running: " + command);
+		exitVal = executeCommand(command, true);
+		result = "Exited with error code " + exitVal;
 		return result;
 	}
 
@@ -199,9 +193,9 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		String result = "";
 		String command;
 		if (isWindows()) {
-			command	= appPath + "\\server\\bin\\server.bat";
+			command	= appPath + "\\runtime\\bin\\server.bat";
 		} else {
-			command	= appPath + "/server/bin/server";
+			command	= appPath + "/runtime/bin/server";
 		}
 		System.out.println("Running: " + command + " " + app);
 		result = startCommand(command, app, true);
@@ -325,10 +319,12 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 			Reader propsReader = new FileReader(props);
 			Properties configProps = new Properties();
 			configProps.load(propsReader);
+			System.out.println(configProps);
 			String env = "";
 			for (Map.Entry prop : configProps.entrySet()) {
 				env = env + (env.length() > 0 ? " " : "") + "-D" + prop.getKey() + "=" + prop.getValue();
 			}
+			System.out.println("JAVA_OPTS=" + env);
 			if (env.length() > 0) {
 				environmentTokens = new String[]{"JAVA_OPTS=" + env};
 			} else {
@@ -378,7 +374,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 			} else {
 				propPort = "9000";
 			}
-			propValue = "http://" + propHost + ":" + propPort;
+			propValue = "hdfs://" + propHost + ":" + propPort;
 		} else if (prop == Props.mapred_job_tracker) {
 			propKey = "mapred.job.tracker";
 			if (StringUtils.hasText(host)) {
@@ -446,7 +442,6 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		} else {
 			command = "cat " + fname;
 		}
-		System.out.println("command is:" + command);
 		if (command != null && command.length() > 0) {
 			try {
 				osOperations.executeCommand(command);
