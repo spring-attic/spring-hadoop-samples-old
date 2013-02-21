@@ -1,10 +1,24 @@
 package org.springframework.data.hadoop.shell;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Logger;
+
+import javax.management.MalformedObjectNameException;
+
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
-import org.jolokia.client.request.J4pExecRequest;
-import org.jolokia.client.request.J4pExecResponse;
-import org.jolokia.client.request.J4pVersionRequest;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.shell.commands.OsCommands;
 import org.springframework.shell.commands.OsOperations;
@@ -15,21 +29,7 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
-
-import javax.management.MalformedObjectNameException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Logger;
+import org.springframework.util.StringUtils;
 
 /**
  */
@@ -61,9 +61,7 @@ public class RuntimeCommands implements CommandMarker {
 	}
 
 	enum Server {
-		syslog_hdfs("syslog-hdfs"),
-		file_polling("file-polling"),
-		ftp("ftp");
+		syslog_hdfs("syslog-hdfs"), file_polling("file-polling"), ftp("ftp");
 
 		private String app;
 
@@ -76,12 +74,18 @@ public class RuntimeCommands implements CommandMarker {
 		}
 	}
 
+	enum AdapterAction {
+		start, stop, status
+	}
+
 	private final J4pClient j4pClient;
 	private boolean serverRunning;
+	private final MBeanOps mbeanOps;
 
 	public RuntimeCommands() {
 		j4pClient = new J4pClient("http://localhost:8778/jolokia/");
-		serverRunning = !serverStatus().contains("not");
+		mbeanOps = new MBeanOps(j4pClient);
+		serverRunning = mbeanOps.ping();
 	}
 
 	@CliAvailabilityIndicator({ "config edit", "readme", "hadoop", "server log" })
@@ -97,7 +101,8 @@ public class RuntimeCommands implements CommandMarker {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({ "server stop", "mon batch", "mon int" })
+	@CliAvailabilityIndicator({ "server stop", "batch", "si adapter", "si list-components", "si list-input-adapters",
+			"si list output-adapters" })
 	public boolean isAvailableToStop() {
 		if (serverRunning) {
 			return true;
@@ -128,18 +133,10 @@ public class RuntimeCommands implements CommandMarker {
 	}
 
 	@CliCommand(value = "server status", help = "Check if server is running")
-	public String serverStatus() {
-		J4pVersionRequest exec;
-		String status = "server is not running";
-		try {
-			
-			exec = new J4pVersionRequest();
-			j4pClient.execute(exec);
-			status = "server is running";
-		} catch (J4pException e) {
-			//System.out.println(e.getMessage());
-		}
-		return status;
+	public boolean serverRunning() {
+		boolean alive = mbeanOps.ping();
+		System.out.println("server is" + (alive ? " " : " not ") + "running");
+		return alive;
 	}
 
 	@CliCommand(value = "server start", help = "Start server tasks")
@@ -174,30 +171,85 @@ public class RuntimeCommands implements CommandMarker {
 
 	@CliCommand(value = "server stop", help = "Stop running server tasks")
 	public String serverStop() {
-
-		J4pExecRequest exec;
+		String result = null;
 		try {
-			exec = new J4pExecRequest("spring-data-server:name=managementBean", "shutDown");
-			J4pExecResponse execResp = j4pClient.execute(exec);
+			result = mbeanOps.execOperation("spring-data-server:name=managementBean", "shutDown");
 		} catch (MalformedObjectNameException e) {
-			System.out.println(e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (J4pException e) {
-			System.out.println(e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		this.serverRunning = false;
-		return "Stop requested";
+		return result;
 	}
 
-	@CliCommand(value = "mon batch", help = "Monitor and control batch components")
+	@CliCommand(value = "batch list-jobs", help = "List batch jobs")
 	public Object monitorBatch() {
 		return null;
 	}
 
-	@CliCommand(value = "mon int input adapters", help = "Monitor and control integration components")
-	public Object monitorInputAdapters(
-			@CliOption(key = { "", "list" }, help = "Monitor and control input adapters", mandatory = false, specifiedDefaultValue = "", unspecifiedDefaultValue = "") boolean list 
-			) {
-		return null;
+	@CliCommand(value = "si list-input-adapters", help = "list spring integration input adapters")
+	public String listInputAdapters() {
+		return findSIComponentsByNameStartsWith("inputAdapter");
+
+	}
+
+	@CliCommand(value = "si list-output-adapters", help = "list spring integration output adapters")
+	public String listOutputAdapters() {
+		return findSIComponentsByNameStartsWith("outputAdapter");
+	}
+
+	@CliCommand(value = "si list-components", help = "list spring integration components,e.g., MessageHandler, MessageChannel")
+	public String listComponentsByType(
+			@CliOption(key = { "type" }, help = "Specify the component type", mandatory = true) String type) {
+		String result = null;
+		String searchString = "*:*,type=" + type;
+		List<String> results = mbeanOps.executeSearchRequest(searchString);
+		if (results != null) {
+			result = StringUtils.arrayToDelimitedString(results.toArray(), "\n");
+		}
+		return result;
+	}
+
+	@CliCommand(value = "si adapter", help = "control input and output adapters")
+	public String controlAdapter(
+			@CliOption(key = { "mbean" }, help = "Specify the mbean object name", mandatory = true) String mbeanName,
+			@CliOption(key = { "action" }, help = "Specify the action", mandatory = true) AdapterAction action) {
+
+		String result = null;
+		try {
+			switch (action) {
+
+			case start:
+				result = mbeanOps.execOperation(mbeanName, "start");
+				break;
+			case stop:
+				result = mbeanOps.execOperation(mbeanName, "stop");
+				break;
+			case status:
+				result = mbeanOps.readAttribute(mbeanName, "Running");
+				result = result.equals("true")?"running":"stopped";
+				break;
+			}
+		} catch (MalformedObjectNameException e) {
+			e.printStackTrace();
+		} catch (J4pException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	
+	private String findSIComponentsByNameStartsWith(String namePrefix) {
+		String result = null;
+
+		List<String> results = mbeanOps.executeSearchRequest("*:*,name="+namePrefix+"*");
+		if (results != null) {
+			result = StringUtils.arrayToDelimitedString(results.toArray(), "\n");
+		}
+		return result;
 	}
 
 	private int executeCommand(String command, boolean withEnv) {

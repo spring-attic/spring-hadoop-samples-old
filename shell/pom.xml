@@ -57,6 +57,11 @@
             <artifactId>jolokia-client-java</artifactId>
             <version>${jolokia.version}</version>
         </dependency>
+        	<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.8.1</version>
+		</dependency>
     </dependencies>
     <repositories>
         <repository>
