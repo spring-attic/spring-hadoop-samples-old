@@ -16,14 +16,19 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.management.MalformedObjectNameException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.sql.SQLException;
 import java.util.Map;
@@ -83,7 +88,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		syslog_hdfs("syslog-hdfs"),
 		file_polling("file-polling"),
 		ftp("ftp"),
-		batch_admin("batchAdmin");
+		batch_jobs("batchJobs");
 
 		private String app;
 
@@ -96,9 +101,15 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		}
 	}
 
+	enum Props {
+		hd_fs,
+		mapred_job_tracker;
+	}
+
+
 	boolean serverRunning = false;
 
-	@CliAvailabilityIndicator({"config edit", "readme", "launch", "hadoop", "server log"})
+	@CliAvailabilityIndicator({"config set", "config list", "readme", "launch", "hadoop", "server log"})
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
@@ -340,26 +351,90 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
     	return getOsName().startsWith("Windows");
  	}
 
-	@CliCommand(value = "config edit", help = "Edit config properties")
-	public String demoEdit() {
+	@CliCommand(value = "config set", help = "Set config properties")
+	public String configSet(
+			@CliOption(key = {"property"}, help = "The property to set", mandatory = true,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Props prop,
+			@CliOption(key = {"host"}, help = "The host value to set", mandatory = false,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final String host,
+			@CliOption(key = {"port"}, help = "The port value to set", mandatory = false,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final String port) {
+		String propKey = null;
+		String propHost = null;
+		String propPort = null;
+		String propValue = null;
+		if (prop == Props.hd_fs) {
+			propKey = "hd.fs";
+			if (StringUtils.hasText(host)) {
+				propHost = host;
+			} else {
+				propHost = "localhost";
+			}
+			if (StringUtils.hasText(port)) {
+				propPort = port;
+			} else {
+				propPort = "9000";
+			}
+			propValue = "http://" + propHost + ":" + propPort;
+		} else if (prop == Props.mapred_job_tracker) {
+			propKey = "mapred.job.tracker";
+			if (StringUtils.hasText(host)) {
+				propHost = host;
+			} else {
+				propHost = "localhost";
+			}
+			if (StringUtils.hasText(port)) {
+				propPort = port;
+			} else {
+				propPort = "9001";
+			}
+			propValue = propHost + ":" + propPort;
+		}
+		String results = "";
 		String fname = appPath + "/config/config.properties";
-		String command;
-		if (isWindows()) {
-			command = "cmd /c " +appPath + "/bin/edit " + fname;
-		} else {
-			command = "sh " + appPath +"/bin/edit " + fname;
-		}
-		System.out.println("command is:" + command);
-		if (command != null && command.length() > 0) {
+		File propFile = new File(fname);
+		Properties config = new Properties();
+		if (propFile.exists()) {
 			try {
-				osOperations.executeCommand(command);
-			}
-			catch (final IOException e) {
-				LOGGER.severe("Unable to execute command " + command + " ["
-					 + e.getMessage() + "]");
+				InputStream is = new FileInputStream(propFile);
+				config.load(is);
+				is.close();
+			} catch (IOException e) {
+				return e.getMessage();
 			}
 		}
-		return "Completed.";
+		config.put(propKey, propValue);
+		try {
+			OutputStream os = new FileOutputStream(propFile);
+			config.store(os, "Add configuration overrides in this file");
+		} catch (FileNotFoundException e) {
+			return e.getMessage();
+		} catch (IOException e) {
+			return e.getMessage();
+		}
+		config.list(System.out);
+		return results;
+	}
+
+	@CliCommand(value = "config list", help = "List config properties")
+	public String configList() {
+		String fname = appPath + "/config/config.properties";
+		File propFile = new File(fname);
+		Properties config = new Properties();
+		if (propFile.exists()) {
+			try {
+				InputStream is = new FileInputStream(propFile);
+				config.load(is);
+				is.close();
+			} catch (IOException e) {
+				return e.getMessage();
+			}
+		}
+		config.list(System.out);
+		return "";
 	}
 
 	@CliCommand(value = "readme", help = "Show README.txt")

@@ -169,10 +169,6 @@
                             <mainClass>org.springframework.shell.Bootstrap</mainClass>
                             <name>run</name>
                         </program>
-                        <program>
-                            <mainClass>editor.NutPad</mainClass>
-                            <name>edit</name>
-                        </program>
                     </programs>
                 </configuration>
                 <executions>

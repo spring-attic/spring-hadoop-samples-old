@@ -10,8 +10,8 @@ are as follows:
 hd.fs=hdfs://localhost:9000
 mapred.job.tracker=localhost:9001
 
-If you want to use a different host or port then edit the config/config.properties file or 
-run the 'config edit' command from inside the hd-shell application.
+If you want to use a different host or port then either edit the config/config.properties file or
+run the 'config set' command from inside the hd-shell application.
 
 To start the hd-shell application enter 'sh ./bin/run' from the directory where you unzipped 
 the spring-hadoop-samples.zip file.
