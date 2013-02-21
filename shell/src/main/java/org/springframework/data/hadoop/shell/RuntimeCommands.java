@@ -19,9 +19,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.management.MalformedObjectNameException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.springframework.context.ApplicationListener;
@@ -273,23 +276,23 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		return result;
 	}
 
-	@CliCommand(value = "batch list-jobs", help = "List batch jobs")
+	@CliCommand(value = "admin list-jobs", help = "List batch jobs")
 	public Object monitorBatch() {
 		return null;
 	}
 
-	@CliCommand(value = "si list-input-adapters", help = "list spring integration input adapters")
+	@CliCommand(value = "admin list-input-adapters", help = "list spring integration input adapters")
 	public String listInputAdapters() {
 		return findSIComponentsByNameStartsWith("inputAdapter");
 
 	}
 
-	@CliCommand(value = "si list-output-adapters", help = "list spring integration output adapters")
+	@CliCommand(value = "admin list-output-adapters", help = "list spring integration output adapters")
 	public String listOutputAdapters() {
 		return findSIComponentsByNameStartsWith("outputAdapter");
 	}
 
-	@CliCommand(value = "si list-components", help = "list spring integration components,e.g., MessageHandler, MessageChannel")
+	@CliCommand(value = "admin list-components", help = "list spring integration components,e.g., MessageHandler, MessageChannel")
 	public String listComponentsByType(
 			@CliOption(key = { "type" }, help = "Specify the component type", mandatory = true) String type) {
 		String result = null;
@@ -301,23 +304,29 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		return result;
 	}
 
-	@CliCommand(value = "si adapter", help = "control input and output adapters")
+	@CliCommand(value = "admin adapter", help = "control input and output adapters")
 	public String controlAdapter(
-			@CliOption(key = { "mbean" }, help = "Specify the mbean object name", mandatory = true) String mbeanName,
+			@CliOption(key = { "adapter" }, help = "Specify the mbean object name", mandatory = true) String adapterName,
 			@CliOption(key = { "action" }, help = "Specify the action", mandatory = true) AdapterAction action) {
 
 		String result = null;
 		try {
+			List<String> mbeanNames = mbeanOps.executeSearchRequest("*:name="+adapterName+",*");
+			if (CollectionUtils.isEmpty(mbeanNames)){
+				return adapterName + " not found.";
+			}
+			
 			switch (action) {
-
+			
 			case start:
-				result = mbeanOps.execOperation(mbeanName, "start");
+			
+				result = mbeanOps.execOperation(mbeanNames.get(0), "start");
 				break;
 			case stop:
-				result = mbeanOps.execOperation(mbeanName, "stop");
+				result = mbeanOps.execOperation(mbeanNames.get(0), "stop");
 				break;
 			case status:
-				result = mbeanOps.readAttribute(mbeanName, "Running");
+				result = mbeanOps.readAttribute(mbeanNames.get(0), "Running");
 				result = result.equals("true")?"running":"stopped";
 				break;
 			}
@@ -334,8 +343,17 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		String result = null;
 
 		List<String> results = mbeanOps.executeSearchRequest("*:*,name="+namePrefix+"*");
-		if (results != null) {
-			result = StringUtils.arrayToDelimitedString(results.toArray(), "\n");
+		if (!CollectionUtils.isEmpty(results)) {
+			String resultsArray[] = new String[results.size()];
+			Pattern pattern = Pattern.compile(".*,name=(.*),.*");
+			int i=0;
+			for (String mbean: results) {
+				
+				Matcher m = pattern.matcher(mbean);
+				m.matches();
+				resultsArray[i++] = m.group(1);
+			}
+			result = StringUtils.arrayToDelimitedString(resultsArray, "\n");
 		}
 		return result;
 	}

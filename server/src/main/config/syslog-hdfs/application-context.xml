@@ -29,8 +29,8 @@
 	<import resource="../processors/noop.xml"/>
 	<import resource="../output-adapters/hdfs.xml"/>
 
-<!-- Shell assumes spring.integration prefix -->
-    <int-jmx:mbean-export default-domain="spring.integration.syslog-hdfs"/>
+<!-- Shell assumes spring.integration -->
+    <int-jmx:mbean-export default-domain="spring.integration"/>
 
    	<context:mbean-server/>
 

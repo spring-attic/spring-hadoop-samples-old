@@ -40,7 +40,7 @@ public class CommandRunner {
 	    System.out.println("channels:");
 	    System.out.println("\t"+value);
 	    
-	    value = commands.controlAdapter("spring.integration.syslog-hdfs:bean=endpoint,name=inputAdapter,type=ManagedEndpoint",AdapterAction.stop);
+	    value = commands.controlAdapter("spring.integration:bean=endpoint,name=inputAdapter,type=ManagedEndpoint",AdapterAction.start);
 	    System.out.println(value);
 	}
 
