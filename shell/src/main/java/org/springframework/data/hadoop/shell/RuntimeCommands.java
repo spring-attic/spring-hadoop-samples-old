@@ -2,11 +2,16 @@ package org.springframework.data.hadoop.shell;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +24,8 @@ import javax.management.MalformedObjectNameException;
 
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.shell.commands.OsCommands;
 import org.springframework.shell.commands.OsOperations;
@@ -34,7 +41,7 @@ import org.springframework.util.StringUtils;
 /**
  */
 @Component
-public class RuntimeCommands implements CommandMarker {
+public class RuntimeCommands implements CommandMarker, ApplicationListener<ContextClosedEvent> {
 
 	public static String VERSION = "1.0.0.BUILD-SNAPSHOT";
 
@@ -45,6 +52,15 @@ public class RuntimeCommands implements CommandMarker {
 	private String appPath = System.getProperty("app.home");
 
 	private StringBuffer logs = new StringBuffer();
+
+	private org.h2.tools.Server dbWebServer;
+
+	public void onApplicationEvent(ContextClosedEvent event) {
+		if (serverRunning) {
+			System.out.println("Stopping running server.");
+			serverStop();
+		}
+	}
 
 	enum Sample {
 		wordcount("wordcount"), hive_password_analysis("hive-app"), hive_apache_log_analysis("hive-apache-log-app");
@@ -60,8 +76,16 @@ public class RuntimeCommands implements CommandMarker {
 		}
 	}
 
+	enum Console {
+		batch_admin,
+		database;
+	}
+
 	enum Server {
-		syslog_hdfs("syslog-hdfs"), file_polling("file-polling"), ftp("ftp");
+		syslog_hdfs("syslog-hdfs"),
+		file_polling("file-polling"),
+		ftp("ftp"),
+		batch_jobs("-batchAdmin");
 
 		private String app;
 
@@ -74,12 +98,12 @@ public class RuntimeCommands implements CommandMarker {
 		}
 	}
 
+
 	enum AdapterAction {
 		start, stop, status
 	}
 
 	private final J4pClient j4pClient;
-	private boolean serverRunning;
 	private final MBeanOps mbeanOps;
 
 	public RuntimeCommands() {
@@ -88,12 +112,22 @@ public class RuntimeCommands implements CommandMarker {
 		serverRunning = mbeanOps.ping();
 	}
 
-	@CliAvailabilityIndicator({ "config edit", "readme", "hadoop", "server log" })
+ 
+	enum Props {
+		hd_fs,
+		mapred_job_tracker;
+	}
+
+
+	boolean serverRunning = false;
+
+	@CliAvailabilityIndicator({"config set", "config list", "readme", "launch", "hadoop", "server log","server status"})
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
 
-	@CliAvailabilityIndicator({ "sample", "server start" })
+ 
+	@CliAvailabilityIndicator({"run", "server start"})
 	public boolean isAvailableToRun() {
 		if (serverRunning) {
 			return false;
@@ -132,6 +166,60 @@ public class RuntimeCommands implements CommandMarker {
 		return result;
 	}
 
+	@CliCommand(value = "launch", help = "Launch monitoring console")
+	public String launch(
+			@CliOption(key = {"", "console"}, help = "The console to run", mandatory = true,
+					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Console console) {
+		String result = "";
+		if (console == Console.batch_admin) {
+			String url = "http://localhost:8081";
+			try {
+				java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+			} catch (IOException e) {
+				result = e.getMessage();
+			}
+		}
+		else if (console == Console.database) {
+			if (dbWebServer == null) {
+				try {
+//					org.h2.tools.Console.main("-browser");
+					dbWebServer = org.h2.tools.Server.createWebServer();
+					dbWebServer.start();
+				} catch (SQLException e) {
+					result = e.getMessage();
+				}
+			}
+			try {
+				org.h2.tools.Server.openBrowser(dbWebServer.getURL());
+			} catch (Exception e) {
+				result = e.getMessage();
+			}
+
+		}
+		return result;
+	}
+
+	@CliCommand(value = "run", help = "Run standalone app tasks")
+	public String run(
+			@CliOption(key = {"", "app"}, help = "The standalone app to run", mandatory = true,
+					specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Sample sample) {
+		String app = sample.getApp();
+		String result = "";
+		int exitVal = -1;
+		String command;
+		if (isWindows()) {
+			command	= appPath + "\\runtime\\bin\\" + app + ".bat";
+		} else {
+			command	= appPath + "/runtime/bin/" + app;
+		}
+		System.out.println("Running: " + command);
+		exitVal = executeCommand(command, true);
+		result = "Exited with error code " + exitVal;
+		return result;
+	}
+
 	@CliCommand(value = "server status", help = "Check if server is running")
 	public boolean serverRunning() {
 		boolean alive = mbeanOps.ping();
@@ -146,9 +234,9 @@ public class RuntimeCommands implements CommandMarker {
 		String result = "";
 		String command;
 		if (isWindows()) {
-			command = appPath + "\\server\\bin\\server.bat";
+			command	= appPath + "\\runtime\\bin\\server.bat";
 		} else {
-			command = appPath + "/server/bin/server";
+			command	= appPath + "/runtime/bin/server";
 		}
 		System.out.println("Running: " + command + " " + app);
 		result = startCommand(command, app, true);
@@ -291,10 +379,19 @@ public class RuntimeCommands implements CommandMarker {
 		} else {
 			environmentTokens = new String[0];
 		}
-		if (isWindows()) {
-			commandTokens = new String[] { "cmd", "/c", command, "-appConfig", app };
+ 
+		if (app.startsWith("-")) {
+			if (isWindows()) {
+				commandTokens = new String[] {"cmd",  "/c", command, app};
+			} else {
+				commandTokens = new String[] {"sh", command, app};
+			}
 		} else {
-			commandTokens = new String[] { "sh", command, "-appConfig", app };
+			if (isWindows()) {
+				commandTokens = new String[] {"cmd",  "/c", command, "-appConfig", app};
+			} else {
+				commandTokens = new String[] {"sh", command, "-appConfig", app};
+			}
 		}
 
 		this.logs = new StringBuffer();
@@ -303,15 +400,14 @@ public class RuntimeCommands implements CommandMarker {
 		Future f = executorService.submit(new Runnable() {
 			public void run() {
 				try {
-					Runtime rt = Runtime.getRuntime();
-					Process pr = rt.exec(commandTokens, finalEnvironmentTokens);
-					BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-					String line = null;
-					while ((line = sysout.readLine()) != null) {
-						//System.out.println(line);
-						logs.append(line + "\n");
-					}
-					int exitVal = pr.waitFor();
+				   Runtime rt = Runtime.getRuntime();
+				   Process pr = rt.exec(commandTokens, finalEnvironmentTokens);
+				   BufferedReader sysout = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+				   String line=null;
+				   while((line=sysout.readLine()) != null) {
+					   logs.append(line + "\n");
+				   }
+				   int exitVal = pr.waitFor();
 					logs.append("Completed with exit code " + exitVal + "\n");
 				} catch (Exception e) {
 					System.out.println(e.toString());
@@ -355,24 +451,91 @@ public class RuntimeCommands implements CommandMarker {
 		return getOsName().startsWith("Windows");
 	}
 
-	@CliCommand(value = "config edit", help = "Edit config properties")
-	public String demoEdit() {
-		String fname = appPath + "/config/config.properties";
-		String command;
-		if (isWindows()) {
-			command = "cmd /c " + appPath + "/bin/edit " + fname;
-		} else {
-			command = "sh " + appPath + "/bin/edit " + fname;
+	@CliCommand(value = "config set", help = "Set config properties")
+	public String configSet(
+			@CliOption(key = {"property"}, help = "The property to set", mandatory = true,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final Props prop,
+			@CliOption(key = {"host"}, help = "The host value to set", mandatory = false,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final String host,
+			@CliOption(key = {"port"}, help = "The port value to set", mandatory = false,
+						specifiedDefaultValue = "", unspecifiedDefaultValue = "")
+			final String port) {
+		String propKey = null;
+		String propHost = null;
+		String propPort = null;
+		String propValue = null;
+		if (prop == Props.hd_fs) {
+			propKey = "hd.fs";
+			if (StringUtils.hasText(host)) {
+				propHost = host;
+			} else {
+				propHost = "localhost";
+			}
+			if (StringUtils.hasText(port)) {
+				propPort = port;
+			} else {
+				propPort = "9000";
+			}
+			propValue = "hdfs://" + propHost + ":" + propPort;
+		} else if (prop == Props.mapred_job_tracker) {
+			propKey = "mapred.job.tracker";
+			if (StringUtils.hasText(host)) {
+				propHost = host;
+			} else {
+				propHost = "localhost";
+			}
+			if (StringUtils.hasText(port)) {
+				propPort = port;
+			} else {
+				propPort = "9001";
+			}
+			propValue = propHost + ":" + propPort;
 		}
-		System.out.println("command is:" + command);
-		if (command != null && command.length() > 0) {
+		String results = "";
+		String fname = appPath + "/config/config.properties";
+		File propFile = new File(fname);
+		Properties config = new Properties();
+		if (propFile.exists()) {
 			try {
-				osOperations.executeCommand(command);
-			} catch (final IOException e) {
-				LOGGER.severe("Unable to execute command " + command + " [" + e.getMessage() + "]");
+ 
+				InputStream is = new FileInputStream(propFile);
+				config.load(is);
+				is.close();
+			} catch (IOException e) {
+				return e.getMessage();
 			}
 		}
-		return "Completed.";
+		config.put(propKey, propValue);
+		try {
+			OutputStream os = new FileOutputStream(propFile);
+			config.store(os, "Add configuration overrides in this file");
+		} catch (FileNotFoundException e) {
+			return e.getMessage();
+		} catch (IOException e) {
+			return e.getMessage();
+		}
+		config.list(System.out);
+		return results;
+	}
+
+	@CliCommand(value = "config list", help = "List config properties")
+	public String configList() {
+		String fname = appPath + "/config/config.properties";
+		File propFile = new File(fname);
+		Properties config = new Properties();
+		if (propFile.exists()) {
+			try {
+				InputStream is = new FileInputStream(propFile);
+				config.load(is);
+				is.close();
+			} catch (IOException e) {
+				return e.getMessage();
+			}
+		}
+		config.list(System.out);
+		return "";
 	}
 
 	@CliCommand(value = "readme", help = "Show README.txt")
@@ -384,7 +547,6 @@ public class RuntimeCommands implements CommandMarker {
 		} else {
 			command = "cat " + fname;
 		}
-		System.out.println("command is:" + command);
 		if (command != null && command.length() > 0) {
 			try {
 				osOperations.executeCommand(command);

@@ -10,21 +10,13 @@
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 	http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
 
-	<!-- TODO can't seem to get thsi resolved... -->
-	<!-- 
-	<context:property-placeholder location="classpath:hadoop.properties"/>
-	-->
-	
-	<configuration> 
-	    <!--  put property-placeholder back... -->
-		fs.default.name=hdfs://localhost:9000
-	</configuration>
+	<beans:import resource="classpath:/META-INF/spring/hadoop-context.xml"/>
 	
 	<beans:bean class="org.springframework.batch.core.scope.StepScope">
 		<beans:property name="proxyTargetClass" value="true"/>
 	</beans:bean>
 	
-	<batch:job id="job1">
+	<batch:job id="wordcountBatchJob">
 		<batch:step id="import" next="wordcount">
 			<batch:tasklet ref="scriptTasklet"/>
 		</batch:step>
@@ -37,6 +29,17 @@
 	
 	<job-tasklet id="wordcount-tasklet" job-ref="wordcountJob"/>
 
+<!--
+				new JobParametersBuilder()
+						.addString("mr.input", "/user/gutenberg/input/word/")
+						.addString("mr.output", "/user/gutenberg/output/word/")
+						.addString("localData",
+								"./data/nietzsche-chapter-1.txt")
+						.addDate("date", new Date()).toJobParameters()); 
+						
+							     input-path="#{jobParameters['mr.input']}" 
+         output-path="#{jobParameters['mr.output']}" 
+ -->
 	<job id="wordcountJob"
 	     input-path="#{jobParameters['mr.input']}" 
          output-path="#{jobParameters['mr.output']}"  
@@ -52,6 +55,7 @@
 
 	
     <script id="hdfsScript" location="copy-files.groovy">
+    	<!-- TODO - relative path needs to be changed to absolute. -->
 		<property name="localSourceFile" value="./data/nietzsche-chapter-1.txt"/>
 		<property name="hdfsInputDir" value="/user/gutenberg/input/word/"/>
 		<property name="hdfsOutputDir" value="/user/gutenberg/output/word/"/>

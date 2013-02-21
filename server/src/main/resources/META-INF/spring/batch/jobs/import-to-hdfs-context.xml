@@ -46,7 +46,7 @@
 			<bean class="org.springframework.batch.item.file.transform.DelimitedLineAggregator">
 				<property name="fieldExtractor">
 				  <bean class="org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor">
-					<property name="names" value="id,price,name" />
+					<property name="names" value="id,name,description,price" />
 				  </bean>
 				</property>
 			</bean>			
