@@ -2,6 +2,7 @@ package org.springframework.data.hadoop.shell;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.configuration.ConfigurationException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.springframework.context.ApplicationListener;
@@ -19,6 +20,8 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.shell.support.logging.HandlerUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import javax.management.MalformedObjectNameException;
@@ -36,6 +39,7 @@ import java.io.Reader;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,9 +58,14 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	enum AdapterAction {
 		start, stop, status
 	}
+	
+	enum BatchJobAction {
+		start,stop,restart,next,abandon
+	}
 
 	private final J4pClient j4pClient;
 	private final MBeanOps mbeanOps;
+	private static int jobCount;
 
 	public AdminCommands() {
 		j4pClient = new J4pClient("http://localhost:8778/jolokia/");
@@ -95,6 +104,31 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 		setCommandURL("jobs/executions.json");
 		String response = callGetService();
 		return response;
+	}
+	
+	/**
+	 * launch job 
+	 * 
+	 * @param jobName
+	 */
+	@CliCommand(value = "admin job start", help = "Start a batch job")
+	public void executeJob(
+	 @CliOption(key = { "jobName" }, mandatory = true, help = "Job Name") final String jobName,
+	 @CliOption(key = { "jobParameters" }, mandatory = false, help = "Job Parameters") final String jobParameters) {
+		String url = "jobs/";
+		url += jobName;
+		url += ".json";
+		setCommandURL(url);
+		MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
+		
+		if (jobParameters == null) {
+			mvm.add("\"jobParameters\":", "fail=false, id=" + jobCount++);
+		}
+		else {
+			mvm.add("\"jobParameters\":", jobParameters);
+		}
+		
+		callPostService(mvm);
 	}
 
 	/**

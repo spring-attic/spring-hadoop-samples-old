@@ -93,6 +93,7 @@ public class BaseCommand {
 			RestTemplate template = getRestTemplate();
 			//		String message = template.postForObject(getCommandUrl(), object, String.class);
 			HttpEntity<T> entity = new HttpEntity<T>(object);
+			System.out.println(entity.getBody().toString());
 			ResponseEntity<String> response = template.exchange(generateCommandUrl(), HttpMethod.POST, entity, String.class);
 			String message = response.getBody();
 			if (message != null) {
