@@ -69,6 +69,9 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	public String getJobs() {
 		setCommandURL("jobs.json");
 		String response = callGetService();
+		if (!StringUtils.hasText(response)) {
+			return "(no data)";
+		}
 		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
 		Map<String, Object> jobs = (Map<String, Object>) ((Map<String, Object>)map.get("jobs")).get("registrations");
 		List<Map<String, Object>> data = new ArrayList(jobs.values());
@@ -81,17 +84,34 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	public String getExecutions() {
 		setCommandURL("jobs/executions.json");
 		String response = callGetService();
+		if (!StringUtils.hasText(response)) {
+			return "(no data)";
+		}
 		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
 		Map<String, Object> executions = (Map<String, Object>) map.get("jobExecutions");
 		List<Map<String, Object>> data = new ArrayList();
 		for (String id : executions.keySet()) {
 			Map<String, Object> execution = (Map<String, Object>) executions.get(id);
 			execution.put("ID", id);
+			String name = getJobName((String) execution.get("resource"));
+			execution.put("name", name);
 			data.add(execution);
 		}
-		List<String> headers = Arrays.asList(new String[] {"ID", "status", "startTime", "duration"});
+		List<String> headers = Arrays.asList(new String[] {"ID", "name", "status", "startTime", "duration"});
 		String display = UiUtils.renderMapDataAsTable(data, headers);
 		return display;
+	}
+
+	private String getJobName(String url) {
+		String name = "(unknown)";
+		if (url != null) {
+			String urlToUse = url.substring(url.indexOf("jobs/"));
+			setCommandURL(urlToUse);
+			String response = callGetService();
+			Map<String, Object> map = JsonUtil.convertJsonToMap(response);
+			name = (String) ((Map<String, Object>)map.get("jobExecution")).get("name");
+		}
+		return name;
 	}
 
 	/**
