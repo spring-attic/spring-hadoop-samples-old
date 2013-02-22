@@ -9,7 +9,7 @@
 
 	<beans:import resource="jdbc-context.xml"/>
 
-	<context:property-placeholder location="hadoop.properties,hive/hive.properties"/>
+	<context:property-placeholder location="properties/hadoop.properties,properties/hive.properties"/>
 	 
 	<context:component-scan base-package="org.springframework.samples.hadoop.hive" />
 	

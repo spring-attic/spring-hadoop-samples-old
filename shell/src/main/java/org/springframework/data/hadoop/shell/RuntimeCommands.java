@@ -66,7 +66,11 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 	}
 
 	enum Sample {
-		wordcount("wordcount"), hive_password_analysis("hive-app"), hive_apache_log_analysis("hive-apache-log-app");
+		wordcount("wordcount"),
+		hive_password_analysis("hive-app"),
+		hive_apache_log_analysis("hive-apache-log-app"),
+		pig_password_analysis("pig-app"),
+		pig_apache_log_analysis("pig-apache-log-app");
 
 		private String app;
 
