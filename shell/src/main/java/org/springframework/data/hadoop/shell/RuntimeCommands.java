@@ -50,6 +50,8 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 
 	private static final Logger LOGGER = HandlerUtils.getLogger(OsCommands.class);
 	private static String OS = null;
+	private static boolean serverRunning = false;
+
 	private OsOperations osOperations = new OsOperationsImpl();
 
 	private String appPath = System.getProperty("app.home");
@@ -57,13 +59,6 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 	private StringBuffer logs = new StringBuffer();
 
 	private org.h2.tools.Server dbWebServer;
-
-	public void onApplicationEvent(ContextClosedEvent event) {
-		if (serverRunning) {
-			System.out.println("Stopping running server.");
-			serverStop();
-		}
-	}
 
 	enum Sample {
 		wordcount("wordcount"),
@@ -105,9 +100,9 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		}
 	}
 
-
-	enum AdapterAction {
-		start, stop, status
+	enum Props {
+		hd_fs,
+		mapred_job_tracker;
 	}
 
 	private final J4pClient j4pClient;
@@ -119,16 +114,15 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		serverRunning = mbeanOps.ping();
 	}
 
- 
-	enum Props {
-		hd_fs,
-		mapred_job_tracker;
+
+	public void onApplicationEvent(ContextClosedEvent event) {
+		if (serverRunning) {
+			System.out.println("Stopping running server.");
+			serverStop();
+		}
 	}
 
-
-	boolean serverRunning = false;
-
-	@CliAvailabilityIndicator({"config set", "config list", "readme", "launch", "hadoop", "server log","server status"})
+	@CliAvailabilityIndicator({"config set", "config list", "readme", "launch", "hadoop", "server log", "server status"})
 	public boolean isAlwaysAvailable() {
 		return true;
 	}
@@ -142,8 +136,7 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		return true;
 	}
 
-	@CliAvailabilityIndicator({ "server stop", "batch", "si adapter", "si list-components", "si list-input-adapters",
-			"si list output-adapters" })
+	@CliAvailabilityIndicator({"server stop", "batch"})
 	public boolean isAvailableToStop() {
 		if (serverRunning) {
 			return true;
@@ -190,7 +183,6 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 		else if (console == Console.database) {
 			if (dbWebServer == null) {
 				try {
-//					org.h2.tools.Console.main("-browser");
 					dbWebServer = org.h2.tools.Server.createWebServer();
 					dbWebServer.start();
 				} catch (SQLException e) {
@@ -228,10 +220,9 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 	}
 
 	@CliCommand(value = "server status", help = "Check if server is running")
-	public boolean serverRunning() {
+	public String serverRunning() {
 		boolean alive = mbeanOps.ping();
-		System.out.println("server is" + (alive ? " " : " not ") + "running");
-		return alive;
+		return "server is" + (alive ? " " : " not ") + "running";
 	}
 
 	@CliCommand(value = "server start", help = "Start server tasks")
@@ -277,88 +268,6 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 			e.printStackTrace();
 		}
 		this.serverRunning = false;
-		return result;
-	}
-
-	@CliCommand(value = "admin list-jobs", help = "List batch jobs")
-	public Object monitorBatch() {
-		return null;
-	}
-
-	@CliCommand(value = "admin list-input-adapters", help = "list spring integration input adapters")
-	public String listInputAdapters() {
-		return findSIComponentsByNameStartsWith("inputAdapter");
-
-	}
-
-	@CliCommand(value = "admin list-output-adapters", help = "list spring integration output adapters")
-	public String listOutputAdapters() {
-		return findSIComponentsByNameStartsWith("outputAdapter");
-	}
-
-	@CliCommand(value = "admin list-components", help = "list spring integration components,e.g., MessageHandler, MessageChannel")
-	public String listComponentsByType(
-			@CliOption(key = { "type" }, help = "Specify the component type", mandatory = true) String type) {
-		String result = null;
-		String searchString = "*:*,type=" + type;
-		List<String> results = mbeanOps.executeSearchRequest(searchString);
-		if (results != null) {
-			result = StringUtils.arrayToDelimitedString(results.toArray(), "\n");
-		}
-		return result;
-	}
-
-	@CliCommand(value = "admin adapter", help = "control input and output adapters")
-	public String controlAdapter(
-			@CliOption(key = { "adapter" }, help = "Specify the mbean object name", mandatory = true) String adapterName,
-			@CliOption(key = { "action" }, help = "Specify the action", mandatory = true) AdapterAction action) {
-
-		String result = null;
-		try {
-			List<String> mbeanNames = mbeanOps.executeSearchRequest("*:name="+adapterName+",*");
-			if (CollectionUtils.isEmpty(mbeanNames)){
-				return adapterName + " not found.";
-			}
-			
-			switch (action) {
-			
-			case start:
-			
-				result = mbeanOps.execOperation(mbeanNames.get(0), "start");
-				break;
-			case stop:
-				result = mbeanOps.execOperation(mbeanNames.get(0), "stop");
-				break;
-			case status:
-				result = mbeanOps.readAttribute(mbeanNames.get(0), "Running");
-				result = result.equals("true")?"running":"stopped";
-				break;
-			}
-		} catch (MalformedObjectNameException e) {
-			e.printStackTrace();
-		} catch (J4pException e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	
-	private String findSIComponentsByNameStartsWith(String namePrefix) {
-		String result = null;
-
-		List<String> results = mbeanOps.executeSearchRequest("*:*,name="+namePrefix+"*");
-		if (!CollectionUtils.isEmpty(results)) {
-			String resultsArray[] = new String[results.size()];
-			Pattern pattern = Pattern.compile(".*,name=(.*),.*");
-			int i=0;
-			for (String mbean: results) {
-				
-				Matcher m = pattern.matcher(mbean);
-				m.matches();
-				resultsArray[i++] = m.group(1);
-			}
-			result = StringUtils.arrayToDelimitedString(resultsArray, "\n");
-		}
 		return result;
 	}
 
@@ -471,6 +380,10 @@ public class RuntimeCommands implements CommandMarker, ApplicationListener<Conte
 
 	public static boolean isWindows() {
 		return getOsName().startsWith("Windows");
+	}
+
+	public static boolean isServerRunning() {
+		return serverRunning;
 	}
 
 	@CliCommand(value = "config set", help = "Set config properties")

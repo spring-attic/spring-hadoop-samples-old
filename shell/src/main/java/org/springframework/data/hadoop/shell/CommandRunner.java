@@ -12,7 +12,7 @@
  */
 package org.springframework.data.hadoop.shell;
 
-import org.springframework.data.hadoop.shell.RuntimeCommands.AdapterAction;
+import org.springframework.data.hadoop.shell.AdminCommands.AdapterAction;
 
 
 /**
@@ -25,8 +25,8 @@ public class CommandRunner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		RuntimeCommands commands = new RuntimeCommands();
-		commands.serverRunning();
+		AdminCommands commands = new AdminCommands();
+		RuntimeCommands.isServerRunning();
 	    String value = commands.listInputAdapters(); 
 	    System.out.println("input adapters:");
 	    System.out.println("\t"+value);

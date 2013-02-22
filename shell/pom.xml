@@ -16,7 +16,7 @@
         <slf4j.version>1.7.1</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <jolokia.version>1.0.6</jolokia.version>
-        <jackson.version>1.9.6</jackson.version>
+        <jackson.version>1.9.12</jackson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -86,12 +86,7 @@
             <artifactId>jolokia-client-java</artifactId>
             <version>${jolokia.version}</version>
         </dependency>
-        	<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.8.1</version>
-		</dependency>
-		
+
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
