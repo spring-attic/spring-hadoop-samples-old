@@ -84,15 +84,17 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	 *
 	 */
 	@CliCommand(value = "admin list-jobs", help = "list all jobs information")
-	public void getJobs() {
+	public String getJobs() {
 		setCommandURL("jobs.json");
-		callGetService();
+		String response = callGetService();
+		return response;
 	}
 
 	@CliCommand(value = "admin list-executions", help = "get all job executions, in order of most recent to least")
-	public void getExecutions() {
+	public String getExecutions() {
 		setCommandURL("jobs/executions.json");
-		callGetService();
+		String response = callGetService();
+		return response;
 	}
 
 	/**

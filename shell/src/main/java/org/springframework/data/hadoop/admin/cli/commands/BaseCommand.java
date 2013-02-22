@@ -48,12 +48,13 @@ public class BaseCommand {
 	/**
 	 * call rest service with "Get" 
 	 */
-	public void callGetService() {
+	public String callGetService() {
 		try {
 			String json = getJson();
-			LOGGER.info(json);
+			return json;
 		} catch (Throwable t) {
 			showErrorMsg(t);
+			return null;
 		}
 	}
 
