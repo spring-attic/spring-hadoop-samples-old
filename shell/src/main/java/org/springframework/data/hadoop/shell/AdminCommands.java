@@ -1,19 +1,23 @@
 package org.springframework.data.hadoop.shell;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.management.MalformedObjectNameException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.configuration.ConfigurationException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.data.hadoop.admin.cli.commands.BaseCommand;
-import org.springframework.data.hadoop.admin.cli.commands.JobsCommand;
 import org.springframework.data.hadoop.admin.cli.commands.PropertyUtil;
-import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
-import org.springframework.shell.commands.OsCommands;
-import org.springframework.shell.commands.OsOperations;
-import org.springframework.shell.commands.OsOperationsImpl;
+import org.springframework.data.hadoop.util.JsonUtil;
+import org.springframework.data.hadoop.util.UiUtils;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliAvailabilityIndicator;
 import org.springframework.shell.core.annotation.CliCommand;
@@ -23,30 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-
-import javax.management.MalformedObjectNameException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  */
@@ -65,6 +45,7 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 
 	private final J4pClient j4pClient;
 	private final MBeanOps mbeanOps;
+
 	private static int jobCount;
 
 	public AdminCommands() {
@@ -96,14 +77,29 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	public String getJobs() {
 		setCommandURL("jobs.json");
 		String response = callGetService();
-		return response;
+		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
+		Map<String, Object> jobs = (Map<String, Object>) ((Map<String, Object>)map.get("jobs")).get("registrations");
+		List<Map<String, Object>> data = new ArrayList(jobs.values());
+		List<String> headers = Arrays.asList(new String[] {"name", "description", "executionCount", "launchable", "incrementable"});
+		String display = UiUtils.renderMapDataAsTable(data, headers);
+		return display;
 	}
 
 	@CliCommand(value = "admin list-executions", help = "get all job executions, in order of most recent to least")
 	public String getExecutions() {
 		setCommandURL("jobs/executions.json");
 		String response = callGetService();
-		return response;
+		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
+		Map<String, Object> executions = (Map<String, Object>) map.get("jobExecutions");
+		List<Map<String, Object>> data = new ArrayList();
+		for (String id : executions.keySet()) {
+			Map<String, Object> execution = (Map<String, Object>) executions.get(id);
+			execution.put("ID", id);
+			data.add(execution);
+		}
+		List<String> headers = Arrays.asList(new String[] {"ID", "status", "startTime", "duration"});
+		String display = UiUtils.renderMapDataAsTable(data, headers);
+		return display;
 	}
 	
 	/**
