@@ -41,8 +41,7 @@ public class BaseCommand {
 
 	public static String errorConnection = "I/O error: Connection refused";
 
-	public static String messageConnection = "Make sure you have set correct service URL, type \"info\" to check service URL."
-			+ " Or check if the service is working";
+	public static String messageConnection = "Make sure the server is running";
 
 	private static final Logger LOGGER = HandlerUtils.getLogger(OsCommands.class);
 	/**
@@ -76,10 +75,10 @@ public class BaseCommand {
 	 */
 	private void showErrorMsg(Throwable t) {
 		if (t.getMessage().contains(errorConnection)) {
-			LOGGER.warning("call service failed." + messageConnection);
+			LOGGER.warning("Call to service failed. " + messageConnection);
 		}
 		else {
-			LOGGER.warning("call service failed. Reason:" + t.getMessage());
+			LOGGER.warning("Call to service failed. Reason: " + t.getMessage());
 		}
 	}
 
