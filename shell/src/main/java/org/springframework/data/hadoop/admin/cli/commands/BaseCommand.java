@@ -88,19 +88,18 @@ public class BaseCommand {
 	 * call rest service with "Post" 
 	 * @param <T>
 	 */
-	public <T> void callPostService(T object) {
+	public <T> String callPostService(T object) {
 		try {
 			RestTemplate template = getRestTemplate();
 			//		String message = template.postForObject(getCommandUrl(), object, String.class);
 			HttpEntity<T> entity = new HttpEntity<T>(object);
-			System.out.println(entity.getBody().toString());
+//			System.out.println(entity.getBody().toString());
 			ResponseEntity<String> response = template.exchange(generateCommandUrl(), HttpMethod.POST, entity, String.class);
 			String message = response.getBody();
-			if (message != null) {
-				LOGGER.info(message);
-			}
+			return message;
 		} catch (Throwable t) {
 			showErrorMsg(t);
+			return null;
 		}
 	}
 

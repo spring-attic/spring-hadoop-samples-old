@@ -73,7 +73,7 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 	 * have to change them to return the JSON or re-format it to something pretty
 	 *
 	 */
-	@CliCommand(value = "admin list-jobs", help = "list all jobs information")
+	@CliCommand(value = "admin job-list", help = "list all jobs information")
 	public String getJobs() {
 		setCommandURL("jobs.json");
 		String response = callGetService();
@@ -82,13 +82,16 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 		}
 		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
 		Map<String, Object> jobs = (Map<String, Object>) ((Map<String, Object>)map.get("jobs")).get("registrations");
+		if (jobs == null) {
+			return "";
+		}
 		List<Map<String, Object>> data = new ArrayList(jobs.values());
 		List<String> headers = Arrays.asList(new String[] {"name", "description", "executionCount", "launchable", "incrementable"});
 		String display = UiUtils.renderMapDataAsTable(data, headers);
 		return display;
 	}
 
-	@CliCommand(value = "admin list-executions", help = "get all job executions, in order of most recent to least")
+	@CliCommand(value = "admin job-executions", help = "get all job executions, in order of most recent to least")
 	public String getExecutions() {
 		setCommandURL("jobs/executions.json");
 		String response = callGetService();
@@ -97,26 +100,56 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 		}
 		Map<String, Object> map = JsonUtil.convertJsonToMap(response);
 		Map<String, Object> executions = (Map<String, Object>) map.get("jobExecutions");
+		if (executions == null) {
+			return "";
+		}
 		List<Map<String, Object>> data = new ArrayList();
 		for (String id : executions.keySet()) {
 			Map<String, Object> execution = (Map<String, Object>) executions.get(id);
-			execution.put("ID", id);
+			execution.put("id", id);
 			String name = getJobName((String) execution.get("resource"));
 			execution.put("name", name);
 			data.add(execution);
 		}
-		List<String> headers = Arrays.asList(new String[] {"ID", "name", "status", "startTime", "duration"});
+		List<String> headers = Arrays.asList(new String[] {"id", "name", "status", "startTime", "duration"});
 		String display = UiUtils.renderMapDataAsTable(data, headers);
 		return display;
 	}
 	
+	@CliCommand(value = "admin job-execution-details", help = "Show the JobExecution details with the id provided")
+	public String getExecution(@CliOption(key = { "jobExecutionId" }, mandatory = true, help = "Job Execution Id") final String jobExecutionId) {
+		String url = "jobs/executions/";
+		url += jobExecutionId;
+		url += ".json";
+		setCommandURL(url);
+		String response = callGetService();
+		if (!StringUtils.hasText(response)) {
+			return "(no data)";
+		}
+		String display = formatJobExecution(response);
+		return display;
+	}
+
+	private String formatJobExecution(String input) {
+		Map<String, Object> map = JsonUtil.convertJsonToMap(input);
+		Map<String, Object> jobExecution = (Map<String, Object>) map.get("jobExecution");
+		if (jobExecution == null) {
+			return "";
+		}
+		List<Map<String, Object>> data = new ArrayList();
+		data.add(jobExecution);
+		List<String> headers = Arrays.asList(new String[] {"id", "name", "status", "startTime", "duration", "exitCode"});
+		String display = UiUtils.renderMapDataAsTable(data, headers);
+		return display;
+	}
+
 	/**
 	 * launch job 
 	 * 
 	 * @param jobName
 	 */
-	@CliCommand(value = "admin job start", help = "Start a batch job")
-	public void executeJob(
+	@CliCommand(value = "admin job-start", help = "Start a batch job")
+	public String executeJob(
 	 @CliOption(key = { "jobName" }, mandatory = true, help = "Job Name") final String jobName,
 	 @CliOption(key = { "jobParameters" }, mandatory = false, help = "Job Parameters") final String jobParameters) {
 		String url = "jobs/";
@@ -126,13 +159,15 @@ public class AdminCommands extends BaseCommand implements CommandMarker {
 		MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
 		
 		if (jobParameters == null) {
-			mvm.add("\"jobParameters\":", "fail=false, id=" + jobCount++);
+			mvm.add("jobParameters", "fail=false, id=" + jobCount++);
 		}
 		else {
-			mvm.add("\"jobParameters\":", jobParameters);
+			mvm.add("jobParameters", jobParameters);
 		}
 		
-		callPostService(mvm);
+		String response = callPostService(mvm);
+		String display = formatJobExecution(response);
+		return display;
 	}
 
 	private String getJobName(String url) {
