@@ -1,8 +1,7 @@
 # Building and running
 
-    $ cd hadoop/wordcount-hdfs-copy
     $ mvn clean package appassembler:assemble
-    $ sh ./target/appassembler/bin/streaming
+    $ sh ./target/runtime/bin/server -appConfig syslog-hdfs
 
 To send a message to syslog
 

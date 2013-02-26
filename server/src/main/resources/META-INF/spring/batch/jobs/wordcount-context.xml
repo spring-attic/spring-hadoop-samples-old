@@ -56,7 +56,7 @@
 	
     <script id="hdfsScript" location="copy-files.groovy">
     	<!-- TODO - relative path needs to be changed to absolute. -->
-		<property name="localSourceFile" value="./data/nietzsche-chapter-1.txt"/>
+		<property name="localSourceFile" value="#{systemProperties['app.home']}/data/nietzsche-chapter-1.txt"/>
 		<property name="hdfsInputDir" value="/user/gutenberg/input/word/"/>
 		<property name="hdfsOutputDir" value="/user/gutenberg/output/word/"/>
 	</script>	
