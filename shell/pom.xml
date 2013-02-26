@@ -196,6 +196,9 @@
                                 <copy todir="target/${app.name}">
                                     <fileset dir="${project.basedir}/docs" />
                                 </copy>
+                                <copy todir="target/${app.name}/source">
+                                    <fileset dir="${project.basedir}/../server/src/main" />
+                                </copy>
                             </tasks>
                         </configuration>
                         <goals>
