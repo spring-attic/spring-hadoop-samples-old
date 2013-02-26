@@ -51,7 +51,7 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}"/>
-                                <zip destfile="${project.build.directory}/spring-hadoop-samples.zip"
+                                <zip destfile="${project.build.directory}/spring-hadoop-samples-1.0.zip"
                                      basedir="${project.basedir}/shell/target/spring-hadoop-shell">
                                 </zip>
                             </tasks>
