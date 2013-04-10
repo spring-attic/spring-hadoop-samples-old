@@ -10,7 +10,7 @@ There are three sample applications that use Hive. The examples are
 
 Use the following commands to build and run the sample
 
-    $ mvn clean package appassembler:assemble
+    $ mvn clean package
     $ sh ./target/appassembler/bin/hiveApp
     $ sh ./target/appassembler/bin/hiveAppJdbc
     $ sh ./target/appassembler/bin/hiveAppWithApacheLogs

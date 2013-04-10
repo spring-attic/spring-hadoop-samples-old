@@ -11,7 +11,7 @@
 
 	<configuration>
 		fs.default.name=${hd.fs}
-		mapred.job.tracker=${mapred.job.tracker}
+		mapred.job.tracker=${hd.jt}
 	</configuration>
 
 	<hive-server port="${hive.port}"
@@ -22,8 +22,8 @@
 	<hive-runner id="hiveRunner" run-at-startup="false" >
 		<script location="apache-log-simple.hql">
 				<arguments>
-					hiveContribJar=/home/mpollack/software/hive-0.8.1-bin/lib/hive-contrib-0.8.1.jar
-					localInPath="./data/apache.log"		
+					hiveContribJar=${app.repo}/hive-contrib-0.8.1.jar
+					localInPath="${app.home}/data/apache.log"
 				</arguments>
 		</script>			
 	</hive-runner>

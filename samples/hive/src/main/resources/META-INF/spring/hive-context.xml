@@ -15,7 +15,7 @@
 	
 	<configuration>
 		fs.default.name=${hd.fs}
-		mapred.job.tracker=${mapred.job.tracker}
+		mapred.job.tracker=${hd.jt}
 	</configuration>
 
 	<hive-server port="${hive.port}" auto-startup="true"
