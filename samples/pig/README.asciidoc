@@ -10,7 +10,7 @@ There are three sample applications that use Pig, each sample getting more sophi
 
 Use the following commands to build and run the sample
 
-    $ mvn clean package appassembler:assemble
+    $ mvn clean package
     $ sh ./target/appassembler/bin/pigApp
     $ sh ./target/appassembler/bin/pigAppWithRepository
     $ sh ./target/appassembler/bin/pigAppWithApacheLogs
