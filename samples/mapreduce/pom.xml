@@ -106,7 +106,7 @@
                         <configuration>
                             <tasks>
                                 <copy todir="target/appassembler/data">
-                                    <fileset dir="src/main/resources/data"/>
+                                    <fileset dir="data"/>
                                 </copy>
                             </tasks>
                         </configuration>
