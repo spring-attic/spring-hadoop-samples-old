@@ -6,14 +6,14 @@ In this sample we will execute HDFS operations and a MapReduce job.  The MapRedu
 
 Use the following commands to build and run the sample
 
-    $ mvn clean package appassembler:assemble
+    $ mvn clean package
     $ sh ./target/appassembler/bin/wordcount
 
 === Sample highlights
 
 The file +src/main/resources/META-INF/spring/application-context.xml+ is the main configuration file for the sample.  It uses the Spring Hadoop XML namespace.
 
-To configure the application to connect to the namenode, use the +<configuration/>+ namespace element.  Values in the XML configuration can be replaced using standard Spring container functionality such as the property placeholder
+To configure the application to connect to the namenode and jobtracker, use the +<configuration/>+ namespace element.  Values in the XML configuration can be replaced using standard Spring container functionality such as the property placeholder
 
 ==== Configuring Hadoop connectivity
 ----
@@ -21,16 +21,18 @@ To configure the application to connect to the namenode, use the +<configuration
 
 <configuration>
   fs.default.name=${hd.fs}
+  mapred.job.tracker=${hd.jt}
 </configuration>
 ----
 
-To declaratively configure a Java based MapReduce jobs, use the XML namespace +<job/> element.
+To declaratively configure a Java based MapReduce jobs, use the XML namespace +<job/>+ element.
 
 ==== Declaring a Job
 ----
 <job id="wordcountJob"
      input-path="${wordcount.input.path}" 
-     output-path="${wordcount.output.path}" 
+     output-path="${wordcount.output.path}"
+     libs="file:${app.repo}/hadoop-examples-*.jar"
      mapper="org.apache.hadoop.examples.WordCount.TokenizerMapper"
      reducer="org.apache.hadoop.examples.WordCount.IntSumReducer"/>
 ----
@@ -40,7 +42,7 @@ HDFS scripting is performed using the XML namespace +<script/>+ element.
 ==== Declaring a parameterized HDFS script
 ----
 <script id="setupScript" location="copy-files.groovy">
-  <property name="localSourceFile" value="${localSourceFile}"/>
+  <property name="localSourceFile" value="${app.home}/${localSourceFile}"/>
   <property name="inputDir" value="${wordcount.input.path}"/>
   <property name="outputDir" value="${wordcount.output.path}"/>
 </script>	 

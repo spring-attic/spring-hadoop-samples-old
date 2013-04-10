@@ -1,5 +1,5 @@
 # Building and running
 
-    $ mvn clean package appassembler:assemble
+    $ mvn clean package
     $ sh ./target/appassembler/bin/wordcount
 
