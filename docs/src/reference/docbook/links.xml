@@ -4,10 +4,10 @@
 
 	<itemizedlist>
 
-    <listitem><emphasis>Spring for Apache Hadoop </emphasis> - <ulink url="http://www.springframework.org/spring-data/hadoop">Home Page</ulink></listitem>
-    <listitem><emphasis>Spring Data </emphasis> - <ulink url="http://www.springframework.org/spring-data">Home Page</ulink></listitem>
-    <listitem><emphasis>SpringSource </emphasis> - <ulink url="http://blog.springsource.com/">Blog</ulink></listitem>
-    <listitem><emphasis>Hadoop </emphasis> - <ulink url="http://hadoop.apache.org/">Home Page</ulink></listitem>
-	<listitem><emphasis>Spring Hadoop Team on Twitter</emphasis> - <ulink url="http://twitter.com/costinl">Costin</ulink></listitem>
+    <listitem><emphasis>Spring for Apache Hadoop </emphasis> - <ulink url="https://www.springframework.org/spring-data/hadoop">Home Page</ulink></listitem>
+    <listitem><emphasis>Spring Data </emphasis> - <ulink url="https://www.springframework.org/spring-data">Home Page</ulink></listitem>
+    <listitem><emphasis>SpringSource </emphasis> - <ulink url="https://spring.io/blog/">Blog</ulink></listitem>
+    <listitem><emphasis>Hadoop </emphasis> - <ulink url="https://hadoop.apache.org/">Home Page</ulink></listitem>
+	<listitem><emphasis>Spring Hadoop Team on Twitter</emphasis> - <ulink url="https://twitter.com/costinl">Costin</ulink></listitem>
 	</itemizedlist>
 </chapter>
