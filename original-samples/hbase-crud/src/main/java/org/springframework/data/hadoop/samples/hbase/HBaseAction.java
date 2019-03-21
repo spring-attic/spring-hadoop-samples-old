@@ -55,7 +55,7 @@ public class HBaseAction {
 	String linkAddress = "link";
 	String columnFamilyName = "cf";
 	String tableName = "likes";
-	String cellValue = "http://blog.springsource.org/2012/02/29/introducing-spring-hadoop/";
+	String cellValue = "https://blog.springsource.org/2012/02/29/introducing-spring-hadoop/";
 
 	/**
 	 * Main entry point.

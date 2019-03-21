@@ -1,5 +1,5 @@
 SAMPLE APPLICATIONS FOR SPRING for APACHE HADOOP CHANGELOG
 ==================================
-http://www.springsource.org/spring-data/hadoop
+https://www.springsource.org/spring-data/hadoop
 
 

@@ -24,7 +24,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * <p/>
  * Accepts as optional parameters location of one (or multiple) application contexts that will
  * be used for configuring the Spring container. See the reference documentation for more
- * {@link http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/resources.html information}.
+ * {@link https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/html/resources.html information}.
  *  
  * Note that in most (if not all) managed environments writing such a class is not needed
  * as Spring already provides the required integration.

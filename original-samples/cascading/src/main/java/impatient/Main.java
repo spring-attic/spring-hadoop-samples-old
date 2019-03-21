@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2007-2012 Concurrent, Inc. All Rights Reserved.
  *
- * Project and contact information: http://www.cascading.org/
+ * Project and contact information: https://www.cascading.org/
  *
  * This file is part of the Cascading project.
  *
