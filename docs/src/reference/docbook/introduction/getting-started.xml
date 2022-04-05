@@ -35,23 +35,23 @@
     map-reduce, to Hive, Pig, and HBase. </para>
 
     <para>To learn more about Spring Batch, visit the <link
-    ns6:href="http://static.springsource.org/spring-batch/">Spring Batch
+    ns6:href="https://docs.spring.io/spring-batch/">Spring Batch
     project page</link>. There are also two books available.</para>
 
     <itemizedlist>
       <listitem>
-        <para><link ns6:href="http://www.manning.com/templier/">Spring Batch
+        <para><link ns6:href="https://www.manning.com/templier/">Spring Batch
         in Action</link> - October 2011 - Manning</para>
       </listitem>
 
       <listitem>
-        <para><link ns6:href="http://www.apress.com/9781430234524">Pro Spring
+        <para><link ns6:href="https://www.apress.com/9781430234524">Pro Spring
         Batch</link> - July 18, 2011 - APress</para>
       </listitem>
     </itemizedlist>
 
     <para>A <link
-    ns6:href="http://www.manning.com/free/green_templier.html">free
+    ns6:href="https://www.manning.com/free/green_templier.html">free
     introduction chapter</link> is available from the the Spring Batch in
     Action book.</para>
   </section>

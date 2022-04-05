@@ -5,13 +5,13 @@
   <title>Requirements</title>
 
   <para>Spring for Apache Hadoop requires JDK level 6.0 (just like Hadoop) and above,
-  Spring <ulink url="http://www.springsource.org/about">Framework</ulink> 3.0
+  Spring <ulink url="https://www.springsource.org/about">Framework</ulink> 3.0
   (3.1 recommended) and above and <ulink
-  url="http://www.gemstone.com/products/gemfire">Hadoop</ulink> 0.20.2
+  url="https://www.gemstone.com/products/gemfire">Hadoop</ulink> 0.20.2
   (1.0.0 recommended) and above. Regarding Hadoop-related projects, SDHP
-  supports <ulink url="http://hbase.apache.org/">HBase</ulink> 0.90.x, <ulink
-  url="http://hive.apache.org/">Hive</ulink> 0.7.x and <ulink
-  url="http://pig.apache.org/">Pig</ulink> 0.9.x and above. As a rule of
+  supports <ulink url="https://hbase.apache.org/">HBase</ulink> 0.90.x, <ulink
+  url="https://hive.apache.org/">Hive</ulink> 0.7.x and <ulink
+  url="https://pig.apache.org/">Pig</ulink> 0.9.x and above. As a rule of
   thumb, when using Hadoop-related projects, such as Hive or Pig, use the
   required Hadoop version as a basis for discovering the supported
   versions.</para>
@@ -20,10 +20,10 @@
   running. If you don't already have a Hadoop cluster up and running in your
   environment, a good first step is to create a single-node cluster. To
   install Hadoop 0.20.x+, the <link
-  ns6:href="http://hadoop.apache.org/common/docs/stable/#Getting+Started">Getting
+  ns6:href="https://hadoop.apache.org/common/docs/stable/#Getting+Started">Getting
   Started</link> page from the official Apache documentation is a good general guide.
   If you are running on Ubuntu, the tutorial from Michael G. Noll, "<link
-  ns6:href="http://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/">Running
+  ns6:href="https://www.michael-noll.com/tutorials/running-hadoop-on-ubuntu-linux-single-node-cluster/">Running
   Hadoop On Ubuntu Linux (Single-Node Cluster)</link>" provides more details.
   It is also convenience to download a Virtual Machine where Hadoop is setup
   and ready to go. Cloudera provides virtual machines of various formats <link
@@ -31,6 +31,6 @@
   You can also download the <link
   ns6:href="http://www.greenplum.com/products/greenplum-hd">EMC Greenplum
   HD</link> distribution or get a tech preview of the <link
-  ns6:href="http://hortonworks.com/technology/techpreview/">Hortonworks
+  ns6:href="https://hortonworks.com/technology/techpreview/">Hortonworks
   distribution</link>.</para>
 </chapter>
