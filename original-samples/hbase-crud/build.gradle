@@ -7,7 +7,7 @@ apply plugin: 'eclipse'
 apply plugin: 'application'
 
 repositories {
-    maven { url "http://repo.springsource.org/libs-snapshot" }
+    maven { url "https://repo.springsource.org/libs-snapshot" }
 }
 
 //load version from the root folder
