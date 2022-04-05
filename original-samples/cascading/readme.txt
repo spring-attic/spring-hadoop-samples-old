@@ -7,8 +7,8 @@
 Demo showcasing the Cascading integration in Spring for Apache Hadoop.
 Built on the 'official' Cascading example, Cascading for the Impatient, Part 2:
 
-Original Source: http://github.com/Cascading/Impatient/tree/master/part2#cascading-for-the-impatient-part-2
-Original Doc   : http://www.cascading.org/2012/07/09/cascading-for-the-impatient-part-2/
+Original Source: https://github.com/Cascading/Impatient/tree/master/part2#cascading-for-the-impatient-part-2
+Original Doc   : https://www.cascading.org/2012/07/09/cascading-for-the-impatient-part-2/
 
 
 The code-base features and structure resembles the original as much as possible to highlight the minimal

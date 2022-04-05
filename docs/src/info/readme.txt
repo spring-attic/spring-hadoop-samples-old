@@ -1,6 +1,6 @@
 SAMPLE APPLICATIONS FOR SPRING for APACHE HADOOP
 ------------------------
-http://www.springsource.org/spring-data/hadoop
+https://www.springsource.org/spring-data/hadoop
 
 1. INTRODUCTION
 
@@ -17,9 +17,9 @@ details, consult the provided javadoc for specific packages and classes.
 4. GETTING STARTED
 
 Please see the reference documentation.
-Additionally the blog at http://blog.springsource.com as well
+Additionally the blog at https://spring.io/blog/ as well
 as sections of interest in the reference documentation.
 
 ADDITIONAL RESOURCES
-Spring for Apache Hadoop Homepage: http://www.springsource.org/spring-data/hadoop
-Hadoop Homepage: http://hadoop.apache.org
+Spring for Apache Hadoop Homepage: https://www.springsource.org/spring-data/hadoop
+Hadoop Homepage: https://hadoop.apache.org

@@ -38,9 +38,9 @@ Together with Spring Integration and Spring Batch, Spring for Apache Hadoop can 
 
 == Additional Resources
 
-The samples were taken from the O'Reilly book link:http://shop.oreilly.com/product/0636920024767.do[Spring Data].  Using the book as a companion to the samples is quite helpful to understanding the samples and the full feature set of what can be done using Spring technologie and Hadoop.
+The samples were taken from the O'Reilly book link:https://shop.oreilly.com/product/0636920024767.do[Spring Data].  Using the book as a companion to the samples is quite helpful to understanding the samples and the full feature set of what can be done using Spring technologie and Hadoop.
 
-The main web site for link:http://www.springsource.org/spring-data/hadoop[Spring for Apache Hadoop]
+The main web site for link:https://www.springsource.org/spring-data/hadoop[Spring for Apache Hadoop]
 
 
 
